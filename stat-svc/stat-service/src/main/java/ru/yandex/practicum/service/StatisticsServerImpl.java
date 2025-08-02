@@ -28,7 +28,7 @@ public class StatisticsServerImpl implements StatisticsServer {
 
     @Override
     public List<StatisticsGetDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
-        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
+        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter).minusSeconds(3);
         LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
 
         if (startDateTime.isEqual(endDateTime) || startDateTime.isAfter(endDateTime)) {
