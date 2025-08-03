@@ -12,10 +12,11 @@ public class StatisticsMapper {
   }
 
   public static Statistics toStatistics(StatisticsPostDto postDto) {
-    return new Statistics(null,
+    return new Statistics(
+            null,
             postDto.getApp(),
             postDto.getUri(),
-            postDto.getApi(),
+            postDto.getIp(),
             postDto.getTimestamp()
     );
   }

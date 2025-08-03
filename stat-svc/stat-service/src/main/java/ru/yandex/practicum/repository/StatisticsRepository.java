@@ -22,6 +22,7 @@ public interface StatisticsRepository extends JpaRepository<Statistics, Long> {
           from Statistics s
          where s.timestamp between :start and :end
          group by s.app, s.uri
+         order by 3 desc
     """
     )
     List<StatisticsGetDto> findStatisticsByPeriod(
@@ -42,6 +43,7 @@ public interface StatisticsRepository extends JpaRepository<Statistics, Long> {
          where s.timestamp between :start and :end
            and s.uri in :uris
          group by s.app, s.uri
+         order by 3 desc
     """
     )
     List<StatisticsGetDto> findStatisticsByPeriodAndUris(
