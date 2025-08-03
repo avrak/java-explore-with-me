@@ -70,7 +70,7 @@ class StatisticsServerImplTest {
 
         assertEquals(1, result.size());
         verify(statisticsRepository).findStatisticsByPeriod(
-                startDateTime,
+                startDateTime.minusSeconds(3),
                 endDateTime,
                 false);
     }
@@ -94,7 +94,7 @@ class StatisticsServerImplTest {
 
         assertEquals(2, result.size());
         verify(statisticsRepository).findStatisticsByPeriodAndUris(
-                startDateTime,
+                startDateTime.minusSeconds(3),
                 endDateTime,
                 uris,
                 true);

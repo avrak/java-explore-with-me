@@ -28,12 +28,14 @@ public class StatisticsServerImpl implements StatisticsServer {
 
     @Override
     public List<StatisticsGetDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
-        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter).minusSeconds(3);
+        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
         LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
 
         if (startDateTime.isEqual(endDateTime) || startDateTime.isAfter(endDateTime)) {
             throw new ConflictException("Начало должно быть раньше конца");
         }
+
+        startDateTime = startDateTime.minusSeconds(3);
 
         if (uris.isEmpty()) {
             return statisticsRepository.findStatisticsByPeriod(startDateTime, endDateTime, unique);
