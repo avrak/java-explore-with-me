@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.category.dto.CategoryDto;
 import ru.yandex.practicum.user.dto.UserShortDto;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,11 +18,11 @@ public class EventShortDto {
     Integer confirmedRequests;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    String eventDate;
+    LocalDateTime eventDate;
 
-    Integer id;
+    Long id;
     UserShortDto initiator;
     Boolean paid;
     String title;
-    Integer views;
+    Long views;
 }

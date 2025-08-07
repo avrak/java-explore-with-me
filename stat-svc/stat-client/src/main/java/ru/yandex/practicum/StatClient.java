@@ -28,11 +28,11 @@ public class StatClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> saveHit(StatisticsPostDto postDto) {
+    public ResponseEntity<Object> hit(StatisticsPostDto postDto) {
         return post("/hit", postDto);
     }
 
-    public ResponseEntity<Object> getUserById(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start.format(formatter),
                 "end", end.format(formatter),

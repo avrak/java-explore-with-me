@@ -40,6 +40,9 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
+    @Column(name = "initiator_id")
+    private Long initiatorId;
+
     @ManyToOne
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")
     private User initiator;
@@ -70,4 +73,6 @@ public class Event {
     @Length(min = 3, max = 120)
     private String title;
 
+    @Column(nullable = false)
+    private Long views = 0L;
 }
