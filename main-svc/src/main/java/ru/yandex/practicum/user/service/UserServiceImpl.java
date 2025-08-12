@@ -8,7 +8,7 @@ import ru.yandex.practicum.exception.model.ConflictException;
 import ru.yandex.practicum.exception.model.NotFoundException;
 import ru.yandex.practicum.user.dto.UserDto;
 import ru.yandex.practicum.user.dto.UserMapper;
-import ru.yandex.practicum.user.dto.UserPostDto;
+import ru.yandex.practicum.user.dto.NewUserRequestDto;
 import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.model.UserService;
 import ru.yandex.practicum.user.repository.UserRepository;
@@ -25,11 +25,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto addUser(UserPostDto userPostDto) {
-        if (userRepository.existsByEmail(userPostDto.getEmail())) {
-            throw new ConflictException("Пользователь с email " + userPostDto.getEmail() + " уже существует");
+    public UserDto addUser(NewUserRequestDto newUserRequestDto) {
+        if (userRepository.existsByEmail(newUserRequestDto.getEmail())) {
+            throw new ConflictException("Пользователь с email " + newUserRequestDto.getEmail() + " уже существует");
         }
-        UserDto dto = UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userPostDto)));
+        UserDto dto = UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequestDto)));
         log.info("Пользователь с id={}, name={}, email={} добавлен", dto.getId(), dto.getName(), dto.getEmail());
         return dto;
     }

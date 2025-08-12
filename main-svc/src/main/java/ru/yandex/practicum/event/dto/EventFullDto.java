@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.category.dto.CategoryDto;
+import ru.yandex.practicum.location.dto.LocationDto;
 import ru.yandex.practicum.user.dto.UserShortDto;
 
 @Data
@@ -13,7 +14,7 @@ import ru.yandex.practicum.user.dto.UserShortDto;
 public class EventFullDto {
     private String annotation;
     private CategoryDto category;
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String createdOn;
@@ -23,7 +24,7 @@ public class EventFullDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String eventDate;
 
-    private Integer id;
+    private Long id;
     private UserShortDto initiator;
     private LocationDto location;
     private Boolean paid;

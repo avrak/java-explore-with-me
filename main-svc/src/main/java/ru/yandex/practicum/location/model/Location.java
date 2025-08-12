@@ -1,4 +1,4 @@
-package ru.yandex.practicum.event.model;
+package ru.yandex.practicum.location.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

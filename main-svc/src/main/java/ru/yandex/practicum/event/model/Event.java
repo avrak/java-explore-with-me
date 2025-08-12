@@ -6,9 +6,12 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.category.model.Category;
+import ru.yandex.practicum.location.model.Location;
+import ru.yandex.practicum.request.model.Request;
 import ru.yandex.practicum.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -40,9 +43,6 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    @Column(name = "initiator_id")
-    private Long initiatorId;
-
     @ManyToOne
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")
     private User initiator;
@@ -72,6 +72,9 @@ public class Event {
     @NotBlank
     @Length(min = 3, max = 120)
     private String title;
+
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<Request> requests;
 
     @Column(nullable = false)
     private Long views = 0L;

@@ -10,13 +10,13 @@ import org.hibernate.validator.constraints.Length;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPostDto {
-    @NotBlank
+public class NewUserRequestDto {
+    @NotBlank(message = "Field: name. Error: must not be blank. Value: null")
     @Length(min = 2, max = 250)
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Field: email. Error: must not be blank. Value: null")
     @Length(min = 6, max = 254)
-    @Email
+    @Email(message = "Field: email. Error: incorrect value")
     private String email;
 }

@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getAll(Long from, Long size) {
+    public Collection<CategoryDto> getAll(Long from, Long size) {
         List<Category> list = categoryRepository.findCategoryByIdBetweenFromAndTo(from, from + size);
         log.info("Список категорий с from={}, size={} прочитан", from, size);
         return list.stream().map(CategoryMapper::toCategoryDto).toList();

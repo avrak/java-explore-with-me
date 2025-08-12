@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.category.dto.CategoryDto;
 import ru.yandex.practicum.category.model.CategoryService;
 
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -18,8 +19,8 @@ public class CategoryPublicController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Long from,
-                                           @RequestParam(defaultValue = "10") @Positive Long size) {
+    public Collection<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Long from,
+                                                 @RequestParam(defaultValue = "10") @Positive Long size) {
         log.info("GET/categories: Получить категории from={}, size={}", from, size);
         return categoryService.getAll(from, size);
     }

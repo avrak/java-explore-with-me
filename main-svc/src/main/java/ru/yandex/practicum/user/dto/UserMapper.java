@@ -5,7 +5,7 @@ import ru.yandex.practicum.user.model.User;
 
 @UtilityClass
 public class UserMapper {
-    public User toUser(UserPostDto postDto) {
+    public User toUser(NewUserRequestDto postDto) {
         return new User(
                 null,
                 postDto.getName(),
