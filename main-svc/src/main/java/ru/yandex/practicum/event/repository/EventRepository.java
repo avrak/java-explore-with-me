@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.model.Event;
-import ru.yandex.practicum.event.model.State;
+import ru.yandex.practicum.event.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -69,7 +69,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                 )
               from Event e
              where (e.initiator.id in (:users) or cast(:users as text) is null)
-               and (e.state in (:states) or cast(:states as text) is null)
+               and (e.state in (:eventStates) or cast(:eventStates as text) is null)
                and (e.category.id in (:categories) or cast(:categories as text) is null)
                and (e.eventDate >= :rangeStart or cast(:rangeStart as timestamp) is null)
                and (e.eventDate <= :rangeEnd or cast(:rangeEnd as timestamp) is null)
@@ -77,11 +77,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     List<EventShortDto> findEvents(
             @Param("users") List<Long> users,
-            @Param("states") List<State> states,
+            @Param("eventStates") List<EventState> eventStates,
             @Param("categories") List<Long> categories,
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
             @Param("from") Long from,
             @Param("size") Long size);
-
 }

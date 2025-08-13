@@ -1,14 +1,14 @@
 package ru.yandex.practicum.category.model;
 
 import ru.yandex.practicum.category.dto.CategoryDto;
-import ru.yandex.practicum.category.dto.CategoryPostDto;
+import ru.yandex.practicum.category.dto.NewCategoryDto;
 
 import java.util.Collection;
 
 public interface CategoryService {
-    CategoryDto add(CategoryPostDto postDto);
+    CategoryDto add(NewCategoryDto postDto);
 
-    CategoryDto update(Long id, CategoryPostDto postDto);
+    CategoryDto update(Long id, NewCategoryDto postDto);
 
     void delete(Long id);
 

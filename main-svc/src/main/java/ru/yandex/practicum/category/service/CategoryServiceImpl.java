@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.category.dto.CategoryDto;
 import ru.yandex.practicum.category.dto.CategoryMapper;
-import ru.yandex.practicum.category.dto.CategoryPostDto;
+import ru.yandex.practicum.category.dto.NewCategoryDto;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.model.CategoryService;
 import ru.yandex.practicum.category.repository.CategoryRepository;
@@ -23,7 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryDto add(CategoryPostDto postDto) {
+    public CategoryDto add(NewCategoryDto postDto) {
         checkByName(postDto.getName());
         CategoryDto dto = CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(postDto)));
         log.info("Категория с id={}, name={} добавлена", dto.getId(), dto.getName());
@@ -31,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto update(Long id, CategoryPostDto postDto) {
+    public CategoryDto update(Long id, NewCategoryDto postDto) {
         Category category = getByIdOrException(id);
 
         if (category.getName().equals(postDto.getName())) {
@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Collection<CategoryDto> getAll(Long from, Long size) {
+    public List<CategoryDto> getAll(Long from, Long size) {
         List<Category> list = categoryRepository.findCategoryByIdBetweenFromAndTo(from, from + size);
         log.info("Список категорий с from={}, size={} прочитан", from, size);
         return list.stream().map(CategoryMapper::toCategoryDto).toList();
@@ -70,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category getByIdOrException(Long id) {
         return categoryRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Категория с id=" + id + " не найдена")
+                () -> new NotFoundException("Category with id=" + id + " was not found")
         );
     }
 

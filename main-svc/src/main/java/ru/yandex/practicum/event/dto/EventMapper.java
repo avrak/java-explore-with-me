@@ -1,14 +1,21 @@
 package ru.yandex.practicum.event.dto;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.category.dto.CategoryMapper;
+import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.event.model.Event;
-import ru.yandex.practicum.location.dto.LocationDto;
+import ru.yandex.practicum.event.model.EventState;
 import ru.yandex.practicum.location.dto.LocationMapper;
+import ru.yandex.practicum.location.model.Location;
 import ru.yandex.practicum.request.model.Request;
 import ru.yandex.practicum.request.model.RequestStatus;
 import ru.yandex.practicum.user.dto.UserMapper;
-import ru.yandex.practicum.user.dto.UserShortDto;
+import ru.yandex.practicum.user.model.User;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -49,9 +56,30 @@ public class EventMapper {
                 event.getParticipantLimit(),
                 event.getPublishedOn().format(formatter),
                 event.getRequestModeration(),
-                event.getState().toString(),
+                event.getEventState().toString(),
                 event.getTitle(),
                 event.getViews()
+        );
+    }
+
+    public static Event toEvent(NewEventDto newEventDto, User initiator, Category category, Location location) {
+        return new Event(
+                null,
+                newEventDto.getAnnotation(),
+                category,
+                LocalDateTime.now(),
+                newEventDto.getDescription(),
+                LocalDateTime.parse(newEventDto.getEventDate(), formatter),
+                initiator,
+                location,
+                newEventDto.isPaid(),
+                newEventDto.getParticipantLimit(),
+                null,
+                newEventDto.isRequestModeration(),
+                EventState.PENDING,
+                newEventDto.getTitle(),
+                null,
+                0L
         );
     }
 }

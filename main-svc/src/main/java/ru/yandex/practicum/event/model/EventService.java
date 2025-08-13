@@ -1,8 +1,6 @@
 package ru.yandex.practicum.event.model;
 
-import ru.yandex.practicum.event.dto.EventFullDto;
-import ru.yandex.practicum.event.dto.EventShortDto;
-import ru.yandex.practicum.event.dto.EventUpdateAdminDto;
+import ru.yandex.practicum.event.dto.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,12 +9,20 @@ public interface EventService {
     Collection<EventShortDto> getEventsByUser(Long userId, Long from, Long size);
 
     Collection<EventShortDto> getEventsByAdmin(List<Long> users,
-                                         List<State> states,
+                                         List<EventState> eventStates,
                                          List<Long> categories,
                                          String rangeStart,
                                          String rangeEnd,
                                          Long from,
                                          Long size);
 
-    EventFullDto updateEventByAdmin(Long eventId, EventUpdateAdminDto updateDto);
+    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequestDto updateDto);
+
+    List<EventShortDto> getEvents(Long userId, Long from, Long size);
+
+    EventFullDto addNewEvent(Long userId, NewEventDto newEventDto);
+
+    EventFullDto getEventById(Long userId, Long eventId);
+
+    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto);
 }

@@ -66,7 +66,7 @@ public class Event {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private State state;
+    private EventState eventState;
 
     @Column
     @NotBlank

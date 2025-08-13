@@ -21,7 +21,7 @@ public class Request {
     private Long id;
 
     @Column(nullable = false)
-    LocalDateTime created;
+    private LocalDateTime created;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
@@ -33,6 +33,6 @@ public class Request {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    RequestStatus status;
+    private RequestStatus status;
 
 }

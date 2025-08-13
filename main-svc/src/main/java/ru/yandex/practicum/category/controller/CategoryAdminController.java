@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.category.dto.CategoryDto;
-import ru.yandex.practicum.category.dto.CategoryPostDto;
+import ru.yandex.practicum.category.dto.NewCategoryDto;
 import ru.yandex.practicum.category.model.CategoryService;
 
 @Slf4j
@@ -20,8 +20,7 @@ public class CategoryAdminController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto save(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody CategoryPostDto postDto
+            @RequestBody NewCategoryDto postDto
     ) {
         log.info("POST/admin/categories: Сохранить категорию {} ", postDto.toString());
         return categoryService.add(postDto);
@@ -36,7 +35,7 @@ public class CategoryAdminController {
 
     @PatchMapping("/{id}")
     public CategoryDto update(@PathVariable("id") @Positive Long id,
-                              @Valid @RequestBody CategoryPostDto postDto) {
+                              @Valid @RequestBody NewCategoryDto postDto) {
         log.info("PATCH/admin/categories/{}: Изменить категорию на {}", id, postDto.toString());
         return categoryService.update(id, postDto);
     }

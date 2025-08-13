@@ -12,7 +12,7 @@ import ru.yandex.practicum.location.dto.LocationDto;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventUpdateAdminDto {
+public class UpdateEventAdminRequestDto {
 
     @Size(min = 3, max = 120, message = "Заголовок события должен содержать от 3 до 120 символов")
     private String title;

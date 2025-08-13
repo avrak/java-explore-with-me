@@ -5,7 +5,7 @@ import ru.yandex.practicum.category.model.Category;
 
 @UtilityClass
 public class CategoryMapper {
-    public Category toCategory(CategoryPostDto postDto) {
+    public Category toCategory(NewCategoryDto postDto) {
         return new Category(
                 null,
                 postDto.getName()

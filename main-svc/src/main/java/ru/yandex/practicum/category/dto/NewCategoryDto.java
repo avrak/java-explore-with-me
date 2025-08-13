@@ -9,8 +9,8 @@ import org.hibernate.validator.constraints.Length;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryPostDto {
-    @NotBlank
+public class NewCategoryDto {
+    @NotBlank(message = "Field: name. Error: must not be blank. Value: null")
     @Length(min = 1, max = 50)
     private String name;
 }
