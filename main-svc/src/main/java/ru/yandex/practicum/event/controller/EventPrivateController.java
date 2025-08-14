@@ -12,6 +12,7 @@ import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.dto.NewEventDto;
 import ru.yandex.practicum.event.dto.UpdateEventUserRequestDto;
 import ru.yandex.practicum.event.model.EventService;
+import ru.yandex.practicum.request.dto.RequestDto;
 
 import java.util.List;
 
@@ -48,7 +49,6 @@ public class EventPrivateController {
             @PathVariable @Positive Long eventId
     ) {
         log.info("GET/users/{}/events/{}: Получить событие пользователя", userId, eventId);
-
         return eventService.getEventById(userId, eventId);
     }
 
@@ -57,7 +57,7 @@ public class EventPrivateController {
             @PathVariable @Positive Long userId,
             @PathVariable @Positive Long eventId,
             @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequestDto) {
+        log.info("PATCH/users/{}/events/{}: Изменить событие пользователя", userId, eventId);
         return eventService.updateEventByUser(userId, eventId, updateEventUserRequestDto);
     }
-
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.event.service;
 
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,17 @@ import ru.yandex.practicum.exception.model.NotFoundException;
 import ru.yandex.practicum.location.dto.LocationMapper;
 import ru.yandex.practicum.location.model.Location;
 import ru.yandex.practicum.location.repository.LocationRepository;
+import ru.yandex.practicum.request.dto.RequestDto;
+import ru.yandex.practicum.request.dto.RequestMapper;
+import ru.yandex.practicum.request.model.Request;
+import ru.yandex.practicum.request.repository.RequestRepository;
 import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -31,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
+    private final RequestRepository requestRepository;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -191,6 +199,94 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("Запрещено менять событие в статусе " + event.getEventState());
         }
 
+        if (updateDto.getAnnotation() != null) {
+            event.setAnnotation(updateDto.getAnnotation());
+        }
 
+        if (updateDto.getCategory() != null) {
+            Category category = categoryRepository.findById(updateDto.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Category with id=" + eventId + " was not found"));
+            event.setCategory(category);
+        }
+
+        if (updateDto.getDescription() != null) {
+            event.setDescription(updateDto.getDescription());
+        }
+
+        if (updateDto.getTitle() != null) {
+            event.setTitle(updateDto.getTitle());
+        }
+
+        if (updateDto.getEventDate() != null) {
+            event.setEventDate(LocalDateTime.parse(updateDto.getEventDate(), formatter));
+        }
+
+        if (updateDto.getLocation() != null) {
+            Location location = event.getLocation();
+            location.setLat(updateDto.getLocation().getLat());
+            location.setLon(updateDto.getLocation().getLon());
+            event.setLocation(location);
+        }
+
+        if (updateDto.getPaid() != null) {
+            event.setPaid(updateDto.getPaid());
+        }
+
+        if (updateDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateDto.getParticipantLimit());
+        }
+
+        if (updateDto.getRequestModeration() != null) {
+            event.setRequestModeration(updateDto.getRequestModeration());
+        }
+
+        if (updateDto.getStateAction() == StateActionUser.SEND_TO_REVIEW) {
+            event.setEventState(EventState.PENDING);
+        } else if (updateDto.getStateAction() == StateActionUser.CANCEL_REVIEW) {
+            event.setEventState(EventState.CANCELED);
+        }
+
+        event = eventRepository.save(event);
+
+        log.info("EventService.updateEventByUser: Сохранены изменения для userId=" + userId
+                + ", eventId=" + eventId + ", updateDto=" + updateDto);
+
+        return EventMapper.toFullDto(event);
+    }
+
+    @Override
+    public List<RequestDto> getUserRequestsForEvent(Long userId, Long eventId) {
+        userRepository.findUserById(userId).orElseThrow(
+                () -> new NotFoundException("User with id=" + userId + " was not found"));
+
+        eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        Request request = requestRepository.findByRequesterIdAndEventId(userId, eventId).orElse(null);
+
+        List<RequestDto> requestDtoList = new ArrayList<>();
+
+        if (request != null) {
+            requestDtoList.add(RequestMapper.toDto(request));
+        }
+
+        log.info("EventService.getUserRequestsForEvent: Прочитаны запросы пользователя {} на событие {}", userId, eventId);
+
+        return requestDtoList;
+    }
+
+    @Override
+    public Collection<EventShortDto> getEventList(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            String rangeStart,
+            String rangeEnd,
+            Boolean onlyAvailable,
+            String sort,
+            Long from,
+            Long size
+    ) {
+        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents();
     }
 }

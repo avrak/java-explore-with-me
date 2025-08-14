@@ -1,6 +1,7 @@
 package ru.yandex.practicum.event.model;
 
 import ru.yandex.practicum.event.dto.*;
+import ru.yandex.practicum.request.dto.RequestDto;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,4 +26,6 @@ public interface EventService {
     EventFullDto getEventById(Long userId, Long eventId);
 
     EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto);
+
+    List<RequestDto> getUserRequestsForEvent(Long userId, Long eventId);
 }
