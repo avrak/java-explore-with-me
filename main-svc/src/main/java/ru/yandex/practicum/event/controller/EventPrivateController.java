@@ -12,7 +12,10 @@ import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.dto.NewEventDto;
 import ru.yandex.practicum.event.dto.UpdateEventUserRequestDto;
 import ru.yandex.practicum.event.model.EventService;
+import ru.yandex.practicum.request.dto.EventRequestStatusUpdateRequestDto;
+import ru.yandex.practicum.request.dto.EventRequestStatusUpdateResultDto;
 import ru.yandex.practicum.request.dto.RequestDto;
+import ru.yandex.practicum.request.model.RequestService;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventPrivateController {
     private final EventService eventService;
+    private final RequestService requestService;
 
     @GetMapping
     public List<EventShortDto> getUserEvents(
@@ -59,5 +63,24 @@ public class EventPrivateController {
             @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequestDto) {
         log.info("PATCH/users/{}/events/{}: Изменить событие пользователя", userId, eventId);
         return eventService.updateEventByUser(userId, eventId, updateEventUserRequestDto);
+    }
+
+    @GetMapping("{eventId}/requests")
+    public List<RequestDto> getRequestsByUserAndEvent(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId
+    ) {
+        log.info("GET/users/{}/events/{}/requests: Получить запросы пользователя для события", userId, eventId);
+        return requestService.getRequestsByUserAndEvent(userId, eventId);
+    }
+
+    @PatchMapping("{eventId}/requests")
+    public EventRequestStatusUpdateResultDto updateRequestStatus(
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId,
+            @RequestBody @Valid EventRequestStatusUpdateRequestDto requestDto
+    ) {
+        log.info("PATCH/users/{}/events/{}/requests: Обновить статусы запросов пользователя для события", userId, eventId);
+        return requestService.updateRequestStatus(userId, eventId, requestDto);
     }
 }

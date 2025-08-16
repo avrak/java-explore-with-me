@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.user.dto.NewUserRequestDto;
 import ru.yandex.practicum.user.dto.UserDto;
-import ru.yandex.practicum.user.dto.UserMapper;
 import ru.yandex.practicum.user.model.UserService;
 
 import java.util.Collection;
@@ -39,11 +38,11 @@ public class UserAdminController {
         return userService.addUser(newDto);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable @Positive Long id) {
-        log.info("DELETE/admin/users/{}: Удалить пользователя", id);
+    public void deleteUser(@PathVariable @Positive Long userId) {
+        log.info("DELETE/admin/users/{}: Удалить пользователя", userId);
 
-        userService.deleteUser(id);
+        userService.deleteUser(userId);
     }
 }

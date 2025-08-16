@@ -17,13 +17,4 @@ public class RequestMapper {
         );
     }
 
-//    public static Request toRequest(RequestDto requestDto) {
-//        return new Request(
-//                requestDto.getId(),
-//                String.format(requestDto.getCreated(), formatter),
-//                null,
-//                null,
-//                requestDto.getStatus()
-//                )
-//    }
 }

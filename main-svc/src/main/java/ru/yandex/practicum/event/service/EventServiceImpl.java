@@ -1,6 +1,5 @@
 package ru.yandex.practicum.event.service;
 
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,21 +12,19 @@ import ru.yandex.practicum.event.repository.EventRepository;
 import ru.yandex.practicum.exception.model.ConflictException;
 import ru.yandex.practicum.exception.model.ForbiddenException;
 import ru.yandex.practicum.exception.model.NotFoundException;
+import ru.yandex.practicum.exception.model.ParameterNotValidException;
 import ru.yandex.practicum.location.dto.LocationMapper;
 import ru.yandex.practicum.location.model.Location;
 import ru.yandex.practicum.location.repository.LocationRepository;
-import ru.yandex.practicum.request.dto.RequestDto;
-import ru.yandex.practicum.request.dto.RequestMapper;
-import ru.yandex.practicum.request.model.Request;
-import ru.yandex.practicum.request.repository.RequestRepository;
 import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -38,16 +35,8 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
-    private final RequestRepository requestRepository;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    @Override
-    public List<EventShortDto> getEventsByUser(Long userId, Long from, Long size) {
-        List<EventShortDto> list = eventRepository.findEventsByUser(userId, from, size);
-        log.info("EventService.getEventsByUser: Прочитаны данные для userId={}, from={}, to={}", userId, from, size);
-        return list;
-    }
 
     @Override
     public List<EventShortDto> getEventsByAdmin(
@@ -128,14 +117,14 @@ public class EventServiceImpl implements EventService {
         event = eventRepository.save(event);
 
         log.info("EventService.updateEventByAdmin: Сохранены изменения события id={}, {}",
-                eventId, updateDto.toString());
+                eventId, updateDto);
 
         return EventMapper.toFullDto(event);
     }
 
     @Override
     public List<EventShortDto> getEvents(Long userId, Long from, Long size) {
-        User user = userRepository.findUserById(userId).orElseThrow(
+        userRepository.findUserById(userId).orElseThrow(
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
 
         List<EventShortDto> eventShortDtoList = eventRepository.findEventsByUser(userId, from, size);
@@ -185,7 +174,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto){
-        User user = userRepository.findUserById(userId).orElseThrow(
+        userRepository.findUserById(userId).orElseThrow(
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
@@ -255,27 +244,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<RequestDto> getUserRequestsForEvent(Long userId, Long eventId) {
-        userRepository.findUserById(userId).orElseThrow(
-                () -> new NotFoundException("User with id=" + userId + " was not found"));
-
-        eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException("Event with id=" + eventId + " was not found"));
-
-        Request request = requestRepository.findByRequesterIdAndEventId(userId, eventId).orElse(null);
-
-        List<RequestDto> requestDtoList = new ArrayList<>();
-
-        if (request != null) {
-            requestDtoList.add(RequestMapper.toDto(request));
-        }
-
-        log.info("EventService.getUserRequestsForEvent: Прочитаны запросы пользователя {} на событие {}", userId, eventId);
-
-        return requestDtoList;
-    }
-
-    @Override
     public Collection<EventShortDto> getEventList(
             String text,
             List<Long> categories,
@@ -287,6 +255,46 @@ public class EventServiceImpl implements EventService {
             Long from,
             Long size
     ) {
-        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents();
+        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents(text, categories, paid, rangeStart,
+                rangeEnd, onlyAvailable, from, size);
+
+        if (eventList == null) {
+            return eventList;
+        }
+
+        EventSort eventSort = null;
+        if (!sort.isBlank()) {
+            try {
+                eventSort = EventSort.valueOf(sort);
+            } catch (IllegalArgumentException e) {
+                throw new ParameterNotValidException("Передан некорректный параметр для сортировки sort=" + sort);
+            }
+        }
+
+        if (Objects.requireNonNull(eventSort) == EventSort.EVENT_DATE) {
+            eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getEventDate));
+        } else {
+            eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getPaid));
+        }
+
+        log.info("EventService.getEventList: Прочитаны запросы пользователя для text={}, categories={}, paid={}, "
+                        + "rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+
+        return eventList;
+        }
+
+        @Override
+        public EventFullDto getFullEventById(Long eventId) {
+            Event event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+            if (!event.getEventState().equals(EventState.PUBLISHED)) {
+                throw new NotFoundException("Event with id=" + eventId + " was not published");
+            }
+
+            EventFullDto fullDto = EventMapper.toFullDto(event);
+            log.info("EventService.getFullEventById: Прочитано событие eventId={}", eventId);
+            return fullDto;
+        }
     }
-}

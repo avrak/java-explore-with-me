@@ -4,13 +4,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.event.dto.EventFullDto;
 import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.model.EventService;
-import ru.yandex.practicum.event.model.EventState;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,5 +36,11 @@ public class EventPublicController {
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
         return eventService.getEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+    }
+
+    @GetMapping("/{eventId}")
+    public EventFullDto getEventById(@PathVariable @Positive Long eventId) {
+        log.info("GET/events/{}: Получить полную информацию по событию", eventId);
+        return eventService.getFullEventById(eventId);
     }
 }

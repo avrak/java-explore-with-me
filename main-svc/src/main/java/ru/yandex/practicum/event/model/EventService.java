@@ -1,21 +1,18 @@
 package ru.yandex.practicum.event.model;
 
 import ru.yandex.practicum.event.dto.*;
-import ru.yandex.practicum.request.dto.RequestDto;
 
 import java.util.Collection;
 import java.util.List;
 
 public interface EventService {
-    Collection<EventShortDto> getEventsByUser(Long userId, Long from, Long size);
-
     Collection<EventShortDto> getEventsByAdmin(List<Long> users,
-                                         List<EventState> eventStates,
-                                         List<Long> categories,
-                                         String rangeStart,
-                                         String rangeEnd,
-                                         Long from,
-                                         Long size);
+                                               List<EventState> eventStates,
+                                               List<Long> categories,
+                                               String rangeStart,
+                                               String rangeEnd,
+                                               Long from,
+                                               Long size);
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequestDto updateDto);
 
@@ -27,5 +24,17 @@ public interface EventService {
 
     EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto);
 
-    List<RequestDto> getUserRequestsForEvent(Long userId, Long eventId);
+    Collection<EventShortDto> getEventList(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            String rangeStart,
+            String rangeEnd,
+            Boolean onlyAvailable,
+            String sort,
+            Long from,
+            Long size
+    );
+
+    EventFullDto getFullEventById(Long eventId);
 }
