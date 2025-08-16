@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.StatisticsPostDto;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.repository.CategoryRepository;
 import ru.yandex.practicum.event.dto.*;
@@ -16,25 +17,26 @@ import ru.yandex.practicum.exception.model.ParameterNotValidException;
 import ru.yandex.practicum.location.dto.LocationMapper;
 import ru.yandex.practicum.location.model.Location;
 import ru.yandex.practicum.location.repository.LocationRepository;
+import ru.yandex.practicum.model.StatisticsServer;
 import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
+    private final static String APP_NAME = "ewm-main-service";
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
+    private final StatisticsServer statisticsServer;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -253,8 +255,12 @@ public class EventServiceImpl implements EventService {
             Boolean onlyAvailable,
             String sort,
             Long from,
-            Long size
+            Long size,
+            String ip,
+            String uri
     ) {
+        statisticsServer.saveHit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
+
         Collection<EventShortDto> eventList = eventRepository.findPublishedEvents(text, categories, paid, rangeStart,
                 rangeEnd, onlyAvailable, from, size);
 
@@ -285,7 +291,10 @@ public class EventServiceImpl implements EventService {
         }
 
         @Override
-        public EventFullDto getFullEventById(Long eventId) {
+        public EventFullDto getFullEventById(Long eventId, String ip, String uri) {
+            // Получим уникальное количество просмотров до текущего
+            int viewsBefore = getViewsFromStats(uri);
+
             Event event = eventRepository.findById(eventId)
                     .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
@@ -293,8 +302,24 @@ public class EventServiceImpl implements EventService {
                 throw new NotFoundException("Event with id=" + eventId + " was not published");
             }
 
+            statisticsServer.saveHit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
+
+            if (viewsBefore < getViewsFromStats(uri)) {
+                event.setViews(event.getViews() + 1);
+                eventRepository.save(event);
+            }
+
             EventFullDto fullDto = EventMapper.toFullDto(event);
             log.info("EventService.getFullEventById: Прочитано событие eventId={}", eventId);
             return fullDto;
+        }
+        
+        private int getViewsFromStats(String uri) {
+            return statisticsServer.getStatistics(
+                            LocalDateTime.of(1900, Month.JANUARY, 1, 0, 0).format(formatter),
+                            LocalDateTime.now().format(formatter),
+                            new ArrayList<>(Collections.singleton(uri)),
+                            true)
+                    .size();
         }
     }

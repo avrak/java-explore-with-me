@@ -33,8 +33,10 @@ public interface EventService {
             Boolean onlyAvailable,
             String sort,
             Long from,
-            Long size
+            Long size,
+            String ip,
+            String uri
     );
 
-    EventFullDto getFullEventById(Long eventId);
+    EventFullDto getFullEventById(Long eventId, String ip, String uri);
 }

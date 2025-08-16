@@ -37,7 +37,7 @@ public class StatisticsServerImpl implements StatisticsServer {
 
         startDateTime = startDateTime.minusSeconds(3);
 
-        if (uris.isEmpty()) {
+        if (uris == null || uris.isEmpty()) {
             return statisticsRepository.findStatisticsByPeriod(startDateTime, endDateTime, unique);
         } else {
             return statisticsRepository.findStatisticsByPeriodAndUris(startDateTime, endDateTime, uris, unique);

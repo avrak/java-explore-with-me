@@ -1,5 +1,6 @@
 package ru.yandex.practicum.event.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -29,18 +30,20 @@ public class EventPublicController {
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Long from,
-            @RequestParam(defaultValue = "10") @Positive Long size
+            @RequestParam(defaultValue = "10") @Positive Long size,
+            HttpServletRequest request
     ) {
         log.info("GET/events: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, "
                         + "onlyAvailable={}, sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        return eventService.getEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return eventService.getEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,
+                request.getRemoteAddr(), request.getRequestURI());
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEventById(@PathVariable @Positive Long eventId) {
+    public EventFullDto getEventById(@PathVariable @Positive Long eventId, HttpServletRequest request) {
         log.info("GET/events/{}: Получить полную информацию по событию", eventId);
-        return eventService.getFullEventById(eventId);
+        return eventService.getFullEventById(eventId, request.getRemoteAddr(), request.getRequestURI());
     }
 }
