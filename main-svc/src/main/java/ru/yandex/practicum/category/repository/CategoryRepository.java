@@ -8,5 +8,5 @@ import java.util.List;
 public interface CategoryRepository  extends JpaRepository<Category, Long> {
     boolean existsByName(String name);
 
-    List<Category> findCategoryByIdBetweenFromAndTo(Long from, Long to);
+    List<Category> findCategoryByIdBetween(Long from, Long to);
 }

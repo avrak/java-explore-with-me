@@ -12,10 +12,11 @@ public interface UserService {
 
     UserDto updateUser(Long userId, UserDto user);
 
-    Collection<UserDto> getUserList(List<Long> idList, Long from, Long size);
+    UserDto getUserById(Long userId);
+
+    Collection<UserDto> getUserList(List<Long> idList, Integer from, Integer size);
 
     void deleteUser(Long userId);
 
-    UserDto getUserById(Long userId);
 
 }

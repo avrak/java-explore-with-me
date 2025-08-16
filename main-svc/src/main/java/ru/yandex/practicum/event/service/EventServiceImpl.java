@@ -2,6 +2,7 @@ package ru.yandex.practicum.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.StatisticsPostDto;
@@ -47,18 +48,20 @@ public class EventServiceImpl implements EventService {
             List<Long> categories,
             String rangeStart,
             String rangeEnd,
-            Long from,
-            Long size
+            Integer from,
+            Integer size
     ) {
-        List<EventShortDto> shortDtoList = eventRepository.findEvents(
+        List<EventShortDto> shortDtoList = eventRepository.findEventsByAdmin(
                 users,
                 eventStates,
                 categories,
                 LocalDateTime.parse(rangeStart, formatter),
                 LocalDateTime.parse(rangeEnd, formatter),
-                from,
-                size
-        );
+                PageRequest.of(from / size, size)
+        )
+                .stream()
+                .map(EventMapper::toShortDto)
+                .toList();
 
         log.info("EventService.getEventsByAdmin: " +
                 "Прочитаны данные для users={}, eventStates={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
@@ -125,11 +128,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getEvents(Long userId, Long from, Long size) {
+    public List<EventShortDto> getEvents(Long userId, Integer from, Integer size) {
         userRepository.findUserById(userId).orElseThrow(
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
 
-        List<EventShortDto> eventShortDtoList = eventRepository.findEventsByUser(userId, from, size);
+        List<EventShortDto> eventShortDtoList = eventRepository.findByInitiatorId(
+                userId, PageRequest.of(from / size, size))
+                .stream()
+                .map(EventMapper::toShortDto)
+                .toList();
 
         log.info("EventService.getEvents: Прочитаны события userId={}, from={}, size={}", userId, from, size);
 
@@ -239,8 +246,8 @@ public class EventServiceImpl implements EventService {
 
         event = eventRepository.save(event);
 
-        log.info("EventService.updateEventByUser: Сохранены изменения для userId=" + userId
-                + ", eventId=" + eventId + ", updateDto=" + updateDto);
+        log.info("EventService.updateEventByUser: Сохранены изменения для userId={}, eventId={}, updateDto={}",
+                userId, eventId, updateDto);
 
         return EventMapper.toFullDto(event);
     }
@@ -254,19 +261,12 @@ public class EventServiceImpl implements EventService {
             String rangeEnd,
             Boolean onlyAvailable,
             String sort,
-            Long from,
-            Long size,
+            Integer from,
+            Integer size,
             String ip,
             String uri
     ) {
         statisticsServer.saveHit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
-
-        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents(text, categories, paid, rangeStart,
-                rangeEnd, onlyAvailable, from, size);
-
-        if (eventList == null) {
-            return eventList;
-        }
 
         EventSort eventSort = null;
         if (!sort.isBlank()) {
@@ -275,6 +275,18 @@ public class EventServiceImpl implements EventService {
             } catch (IllegalArgumentException e) {
                 throw new ParameterNotValidException("Передан некорректный параметр для сортировки sort=" + sort);
             }
+        }
+
+        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents(text, categories, paid,
+                        LocalDateTime.parse(rangeStart, formatter),
+                        LocalDateTime.parse(rangeEnd, formatter),
+                        onlyAvailable, PageRequest.of(from / size, size))
+                .stream()
+                .map(EventMapper::toShortDto)
+                .toList();
+
+        if (eventList.isEmpty()) {
+            return eventList;
         }
 
         if (Objects.requireNonNull(eventSort) == EventSort.EVENT_DATE) {

@@ -13,11 +13,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Optional<Request> findByRequesterIdAndEventId(Long userId, Long eventId);
 
-    @Query("""
-            update Requests r
-               set r.status = RequestStatus.REJECTED
-             where r.event.id = :eventId
-               and r.status = RequestStatus.PENDING
-            """)
+    @Query(value = """
+            update requests r
+               set r.status = 'REJECTED'
+             where r.event_id = :eventId
+               and r.status = 'PENDING'
+            """, nativeQuery = true)
     void rejectHappilessRequests(@Param("eventId") Long eventId);
 }

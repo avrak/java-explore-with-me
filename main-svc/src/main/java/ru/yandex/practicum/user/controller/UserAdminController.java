@@ -22,8 +22,8 @@ public class UserAdminController {
 
     @GetMapping
     public Collection<UserDto> getUserList(@RequestParam(required = false) List<Long> ids,
-                                           @RequestParam(defaultValue = "0") Long from,
-                                           @RequestParam(defaultValue = "10") Long size
+                                           @RequestParam(defaultValue = "0") Integer from,
+                                           @RequestParam(defaultValue = "10") Integer size
     ) {
         log.info("GET/admin/users: Прочитать список пользователей ids={}, from={}, size={}", ids, from, size);
 

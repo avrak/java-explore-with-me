@@ -1,9 +1,9 @@
 package ru.yandex.practicum.event.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.model.Event;
 import ru.yandex.practicum.event.model.EventState;
 
@@ -12,122 +12,53 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    @Query("""
-            select new ru.yandex.practicum.EventShortDto(
-                    e.annotation,
-                    new CategoryDto(
-                        e.category.id,
-                        e.category.name
-                    ),
-                    (
-                        select count(r.id)
-                          from Request r
-                         where r.event.id = e.id
-                           and r.status = 'CONFIRMED'
-                    )
-                    e.eventDate,
-                    e.id,
-                    new ru.yandex.practicum.user.dto.UserShortDto(
-                        e.initiator.id,
-                        e.initiator.name
-                    ),
-                    e.paid,
-                    e.title,
-                    e.views
-                )
-              from Event e
-             where e.state = EventState.PUBLISHED
-               and (lower(e.annotation) like concat('%', lower(cast(:text as text)), '%')
-                    or lower(e.description) like concat('%', lower(cast(:text as text)), '%')
-                    or cast(:users as text) is null)
-               and (e.category.id in (:categories) or cast(:categories as text) is null)
-               and (e.paid == :paid or cast(:paid as text) is null)
-               and (e.state in (:eventStates) or cast(:eventStates as text) is null)
-               and (e.eventDate >= :rangeStart or cast(:rangeStart as timestamp) is null)
-               and (e.eventDate <= :rangeEnd or cast(:rangeEnd as timestamp) is null)
-               and e.id between :from and :from + :size
-            """)
-    List<EventShortDto> findPublishedEvents(
+    @Query(value = """
+        SELECT e FROM event e
+        WHERE e.state = 'PUBLISHED'
+        AND (:text IS NULL OR
+             LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR
+             LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%')))
+        AND (:categories IS NULL OR e.category.id IN :categories)
+        AND (:paid IS NULL OR e.paid = :paid)
+        AND (:rangeStart IS NULL OR e.eventDate >= :rangeStart)
+        AND (:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)
+        AND (:onlyAvailable = FALSE OR 
+             e.participantLimit = 0 OR 
+             e.participantLimit > (
+                 SELECT COUNT(r) 
+                 FROM Request r 
+                 WHERE r.event = e 
+                 AND r.status = ru.yandex.practicum.request.model.RequestStatus.CONFIRMED
+             ))
+    """, nativeQuery = true)
+    List<Event> findPublishedEvents(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
             @Param("paid") Boolean paid,
-            @Param("rangeStart") String rangeStart,
-            @Param("rangeEnd") String rangeEnd,
+            @Param("rangeStart") LocalDateTime rangeStart,
+            @Param("rangeEnd") LocalDateTime rangeEnd,
             @Param("onlyAvailable") Boolean onlyAvailable,
-            @Param("from") Long from,
-            @Param("size") Long size);
+            Pageable pageable);
 
-    @Query("""
-            select new ru.yandex.practicum.EventShortDto(
-                    e.annotation,
-                    new CategoryDto(
-                        e.category.id,
-                        e.category.name
-                    ),
-                    (
-                        select count(r.id)
-                          from Request r
-                         where r.event.id = e.id
-                           and r.status = 'CONFIRMED'
-                    ),
-                    e.eventDate,
-                    e.id,
-                    new ru.yandex.practicum.user.dto.UserShortDto(
-                        e.initiator.id,
-                        e.initiator.name
-                    ),
-                    e.paid,
-                    e.title,
-                    e.views
-                )
-              from Event e
-             where e.initiatorId = :userId
-               and e.id between :from and :from + :size
-            """)
-    List<EventShortDto> findEventsByUser(
+    @Query(value = "SELECT e FROM event e WHERE e.initiator.id = :userId", nativeQuery = true)
+    List<Event> findByInitiatorId(
             @Param("userId") Long userId,
-            @Param("from") Long from,
-            @Param("size") Long size);
+            Pageable pageable);
 
-    @Query("""
-            select new ru.yandex.practicum.EventShortDto(
-                    e.annotation,
-                    new CategoryDto(
-                        e.category.id,
-                        e.category.name
-                    ),
-                    (
-                        select count(r.id)
-                          from Request r
-                         where r.event.id = e.id
-                           and r.status = 'CONFIRMED'
-                    ),
-                    e.eventDate,
-                    e.id,
-                    new ru.yandex.practicum.user.dto.UserShortDto(
-                        e.initiator.id,
-                        e.initiator.name
-                    ),
-                    e.paid,
-                    e.title,
-                    e.views
-                )
-              from Event e
-             where (e.initiator.id in (:users) or cast(:users as text) is null)
-               and (e.state in (:eventStates) or cast(:eventStates as text) is null)
-               and (e.category.id in (:categories) or cast(:categories as text) is null)
-               and (e.eventDate >= :rangeStart or cast(:rangeStart as timestamp) is null)
-               and (e.eventDate <= :rangeEnd or cast(:rangeEnd as timestamp) is null)
-               and e.id between :from and :from + :size
-            """)
-    List<EventShortDto> findEvents(
+    @Query(value = """
+            SELECT e
+              FROM event e
+             WHERE (:users IS NULL OR e.initiator_id IN :users)
+               AND (:states IS NULL OR e.state IN :states)
+               AND (:categories IS NULL OR e.category_id IN :categories)
+               AND (:rangeStart IS NULL OR e.event_date >= :rangeStart)
+               AND (:rangeEnd IS NULL OR e.event_date <= :rangeEnd)
+    """, nativeQuery = true)
+    List<Event> findEventsByAdmin(
             @Param("users") List<Long> users,
-            @Param("eventStates") List<EventState> eventStates,
+            @Param("states") List<EventState> states,
             @Param("categories") List<Long> categories,
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
-            @Param("from") Long from,
-            @Param("size") Long size);
-
-
+            Pageable pageable);
 }

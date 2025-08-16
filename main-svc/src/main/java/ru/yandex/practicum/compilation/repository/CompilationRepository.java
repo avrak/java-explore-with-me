@@ -6,5 +6,5 @@ import ru.yandex.practicum.compilation.model.Compilation;
 import java.util.List;
 
 public interface CompilationRepository  extends JpaRepository<Compilation, Long> {
-    List<Compilation> findByPinnedAndIdBetweenFromAndTo(Boolean pinned, Long from, Long to);
+    List<Compilation> findByPinnedAndIdBetween(Boolean pinned, Long from, Long to);
 }

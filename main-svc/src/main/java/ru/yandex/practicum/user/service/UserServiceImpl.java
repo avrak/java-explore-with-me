@@ -2,6 +2,7 @@ package ru.yandex.practicum.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exception.model.ConflictException;
@@ -74,16 +75,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<UserDto> getUserList(List<Long> idList, Long from, Long size) {
-        List<UserDto> list = (idList == null || idList.isEmpty() ?
-                userRepository.findUserByIdBetweenFromAndTo(from, from + size)
-                : userRepository.findAllById(idList)
-        ).stream().map(UserMapper::toUserDto).toList();
+    public Collection<UserDto> getUserList(List<Long> idList, Integer from, Integer size) {
+        List<User> list = (idList == null || idList.isEmpty() ?
+                userRepository.findAll(PageRequest.of(from / size, size)).getContent()
+                : userRepository.findByIdIn(idList, PageRequest.of(from / size, size))
+        );
 
         log.info("Список пользователей с idList={}, from={}, size={} прочитан", idList, from, size);
 
-        return list;
+        return list.stream().map(UserMapper::toUserDto).toList();
     }
+
 
     @Override
     public void deleteUser(Long userId) {

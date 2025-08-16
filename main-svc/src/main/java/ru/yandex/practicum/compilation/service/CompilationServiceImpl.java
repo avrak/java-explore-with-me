@@ -27,8 +27,8 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Long from, Long size) {
-        List<CompilationDto> compilationDtoList = compilationRepository.findByPinnedAndIdBetweenFromAndTo(
-                pinned == null ? false : pinned, from, from + size
+        List<CompilationDto> compilationDtoList = compilationRepository.findByPinnedAndIdBetween(
+                        pinned != null && pinned, from, from + size
         ).stream()
                 .map(CompilationMapper::toDto)
                 .toList();

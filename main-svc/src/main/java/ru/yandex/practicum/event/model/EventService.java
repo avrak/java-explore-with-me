@@ -11,12 +11,12 @@ public interface EventService {
                                                List<Long> categories,
                                                String rangeStart,
                                                String rangeEnd,
-                                               Long from,
-                                               Long size);
+                                               Integer from,
+                                               Integer size);
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequestDto updateDto);
 
-    List<EventShortDto> getEvents(Long userId, Long from, Long size);
+    List<EventShortDto> getEvents(Long userId, Integer from, Integer size);
 
     EventFullDto addNewEvent(Long userId, NewEventDto newEventDto);
 
@@ -32,8 +32,8 @@ public interface EventService {
             String rangeEnd,
             Boolean onlyAvailable,
             String sort,
-            Long from,
-            Long size,
+            Integer from,
+            Integer size,
             String ip,
             String uri
     );

@@ -29,8 +29,8 @@ public class EventAdminController {
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
-            @PositiveOrZero @RequestParam(defaultValue = "0") Long from,
-            @Positive @RequestParam(defaultValue = "10") Long size
+            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+            @Positive @RequestParam(defaultValue = "10") Integer size
     ) {
         log.info("GET/admin/events: users={}, eventStates={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
                 users, eventStates, categories, rangeStart, rangeEnd, from, size);

@@ -29,8 +29,8 @@ public class EventPublicController {
             @RequestParam(required = false) String rangeEnd,
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Long from,
-            @RequestParam(defaultValue = "10") @Positive Long size,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size,
             HttpServletRequest request
     ) {
         log.info("GET/events: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, "
