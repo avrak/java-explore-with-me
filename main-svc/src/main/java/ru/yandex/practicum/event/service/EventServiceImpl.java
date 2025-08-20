@@ -2,6 +2,7 @@ package ru.yandex.practicum.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
+    @Autowired
     private final StatClient statClient;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -332,7 +334,7 @@ public class EventServiceImpl implements EventService {
             // Получим уникальное количество просмотров до текущего
             int viewsBefore = getViewsFromStats(uri);
 
-            statClient.hit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
+            statClient.hit(new StatisticsPostDto(APP_NAME, uri, ip, LocalDateTime.now()));
 
             Event event = eventRepository.findById(eventId)
                     .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));

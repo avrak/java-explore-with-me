@@ -6,6 +6,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.yandex.practicum.client.BaseClient;
 
@@ -20,16 +21,19 @@ public class StatClient extends BaseClient {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Autowired
-    public StatClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
-                        .build()
-        );
-    }
+//    @Autowired
+//    public StatClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+//        super(
+//                builder
+//                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+//                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+//                        .build()
+//        );
+//    }
 
+    public StatClient(RestTemplate restTemplate) {
+        super(restTemplate);
+    }
     public ResponseEntity<Object> hit(StatisticsPostDto postDto) {
         return post("/hit", postDto);
     }
