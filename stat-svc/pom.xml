@@ -8,6 +8,12 @@
         <artifactId>explore-with-me</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+    <packaging>pom</packaging>
+    <modules>
+        <module>stat-client</module>
+        <module>stat-dto</module>
+        <module>stat-service</module>
+    </modules>
 
     <artifactId>stat-svc</artifactId>
 

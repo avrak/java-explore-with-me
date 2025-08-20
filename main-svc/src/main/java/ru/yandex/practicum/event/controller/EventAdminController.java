@@ -5,12 +5,13 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.event.dto.EventFullDto;
-import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.dto.UpdateEventAdminRequestDto;
-import ru.yandex.practicum.event.model.EventService;
 import ru.yandex.practicum.event.model.EventState;
+import ru.yandex.practicum.event.service.EventServiceImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,11 +20,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/events")
 @RequiredArgsConstructor
+@Validated
 public class EventAdminController {
-    private final EventService eventService;
+    @Autowired
+    private final EventServiceImpl eventService;
 
     @GetMapping
-    public Collection<EventShortDto> getEventList(
+    public Collection<EventFullDto> getEventList(
             @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<EventState> eventStates,
             @RequestParam(required = false) List<Long> categories,
@@ -40,6 +43,7 @@ public class EventAdminController {
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable @Positive Long eventId,
                                     @RequestBody @Valid UpdateEventAdminRequestDto updateDto) {
+        log.info("PATCH/admin/events{}: {}", eventId, updateDto);
         return eventService.updateEventByAdmin(eventId, updateDto);
     }
 

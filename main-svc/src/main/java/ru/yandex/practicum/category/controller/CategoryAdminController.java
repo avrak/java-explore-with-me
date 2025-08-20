@@ -4,18 +4,22 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.category.dto.CategoryDto;
 import ru.yandex.practicum.category.dto.NewCategoryDto;
-import ru.yandex.practicum.category.model.CategoryService;
+import ru.yandex.practicum.category.service.CategoryServiceImpl;
 
 @Slf4j
 @RestController
 @RequestMapping("/admin/categories")
 @RequiredArgsConstructor
+@Validated
 public class CategoryAdminController {
-    private final CategoryService categoryService;
+    @Autowired
+    private final CategoryServiceImpl categoryService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -5,17 +5,19 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.event.dto.EventFullDto;
 import ru.yandex.practicum.event.dto.EventShortDto;
 import ru.yandex.practicum.event.dto.NewEventDto;
 import ru.yandex.practicum.event.dto.UpdateEventUserRequestDto;
-import ru.yandex.practicum.event.model.EventService;
+import ru.yandex.practicum.event.service.EventServiceImpl;
 import ru.yandex.practicum.request.dto.EventRequestStatusUpdateRequestDto;
 import ru.yandex.practicum.request.dto.EventRequestStatusUpdateResultDto;
 import ru.yandex.practicum.request.dto.RequestDto;
-import ru.yandex.practicum.request.model.RequestService;
+import ru.yandex.practicum.request.service.RequestServiceImpl;
 
 import java.util.List;
 
@@ -23,9 +25,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
+@Validated
 public class EventPrivateController {
-    private final EventService eventService;
-    private final RequestService requestService;
+    @Autowired
+    private final EventServiceImpl eventService;
+    @Autowired
+    private final RequestServiceImpl requestService;
 
     @GetMapping
     public List<EventShortDto> getUserEvents(

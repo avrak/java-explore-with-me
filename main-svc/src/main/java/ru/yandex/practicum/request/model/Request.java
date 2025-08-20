@@ -12,7 +12,7 @@ import ru.yandex.practicum.user.model.User;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "events")
+@Table(name = "requests")
 @Getter
 @Setter
 public class Request {

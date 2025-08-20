@@ -16,19 +16,19 @@ import ru.yandex.practicum.location.dto.LocationDto;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewEventDto {
-    @NotBlank(message = "Field: name. Error: must not be blank. Value: null")
-    @Size(min = 3, max = 120)
+    @NotBlank(message = "Field: annotation. Error: must not be blank. Value: null")
+    @Size(min = 20, max = 2000, message = "Field: annotation. Error: must be 20..2000 symbols")
     private String annotation;
 
     @PositiveOrZero(message = "Field: category. Error: must not be blank. Value: null")
     private Long category;
 
     @NotBlank(message = "Field: description. Error: must not be blank. Value: null")
-    @Size(min = 20, max = 7000)
+    @Size(min = 20, max = 7000, message = "description: annotation. Error: must be 20..7000 symbols")
     private String description;
 
     @NotBlank(message = "Field: name. Error: must not be blank. Value: null")
-    @Size(min = 3, max = 120)
+    @Size(min = 3, max = 120, message = "description: annotation. Error: must be 3..120 symbols")
     private String title;
 
     @NotBlank(message = "Field: eventDate. Error: must not be blank. Value: null")

@@ -1,9 +1,5 @@
 package ru.yandex.practicum.event.dto;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
-import org.hibernate.validator.constraints.Length;
 import ru.yandex.practicum.category.dto.CategoryMapper;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.event.model.Event;
@@ -23,7 +19,7 @@ public class EventMapper {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static long countRequests(List<Request> requestList) {
-        return requestList.isEmpty() ? 0 :
+        return requestList == null ? 0 :
                 requestList.stream().filter(request -> request.getStatus() == RequestStatus.CONFIRMED).count();
     }
 
@@ -54,9 +50,9 @@ public class EventMapper {
                 LocationMapper.toDto(event.getLocation()),
                 event.getPaid(),
                 event.getParticipantLimit(),
-                event.getPublishedOn().format(formatter),
+                event.getPublishedOn() != null ? event.getPublishedOn().format(formatter) : null,
                 event.getRequestModeration(),
-                event.getEventState().toString(),
+                event.getState().toString(),
                 event.getTitle(),
                 event.getViews()
         );

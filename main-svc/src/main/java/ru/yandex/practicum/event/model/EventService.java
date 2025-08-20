@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface EventService {
-    Collection<EventShortDto> getEventsByAdmin(List<Long> users,
+    Collection<EventFullDto> getEventsByAdmin(List<Long> users,
                                                List<EventState> eventStates,
                                                List<Long> categories,
                                                String rangeStart,

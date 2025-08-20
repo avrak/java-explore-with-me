@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
@@ -55,6 +55,10 @@ public class CompilationServiceImpl implements CompilationService {
 
         if (newDto.getEventIdList() != null) {
             compilation.setEvents(eventRepository.findAllById(newDto.getEventIdList()));
+        }
+
+        if (newDto.getPinned() == null) {
+            newDto.setPinned(false);
         }
 
         compilation = compilationRepository.save(compilation);

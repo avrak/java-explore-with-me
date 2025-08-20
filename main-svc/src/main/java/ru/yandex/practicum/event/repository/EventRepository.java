@@ -13,23 +13,15 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query(value = """
-        SELECT e FROM event e
-        WHERE e.state = 'PUBLISHED'
-        AND (:text IS NULL OR
-             LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR
-             LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%')))
-        AND (:categories IS NULL OR e.category.id IN :categories)
-        AND (:paid IS NULL OR e.paid = :paid)
-        AND (:rangeStart IS NULL OR e.eventDate >= :rangeStart)
-        AND (:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)
-        AND (:onlyAvailable = FALSE OR 
-             e.participantLimit = 0 OR 
-             e.participantLimit > (
-                 SELECT COUNT(r) 
-                 FROM Request r 
-                 WHERE r.event = e 
-                 AND r.status = ru.yandex.practicum.request.model.RequestStatus.CONFIRMED
-             ))
+            SELECT *
+              FROM events e
+             WHERE e.state = 'PUBLISHED'
+               AND (:text IS NULL OR LOWER(e.annotation) LIKE LOWER(CONCAT('%', CAST(:text AS TEXT), '%'))
+                                   OR LOWER(e.description) LIKE LOWER(CONCAT('%', CAST(:text AS TEXT), '%')) )
+               AND (:categories IS NULL OR e.category_id IN (CAST(CAST(:categories AS TEXT) AS BIGINT)))
+               AND (:paid IS NULL OR e.paid = CAST(CAST(:paid AS TEXT) AS BOOLEAN))
+               AND (e.event_date >= :rangeStart)
+               AND (CAST(:rangeEnd AS timestamp) IS NULL OR e.event_date < CAST(:rangeEnd AS timestamp))
     """, nativeQuery = true)
     List<Event> findPublishedEvents(
             @Param("text") String text,
@@ -37,22 +29,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("paid") Boolean paid,
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
-            @Param("onlyAvailable") Boolean onlyAvailable,
             Pageable pageable);
 
-    @Query(value = "SELECT e FROM event e WHERE e.initiator.id = :userId", nativeQuery = true)
-    List<Event> findByInitiatorId(
-            @Param("userId") Long userId,
+    List<Event> findByInitiatorId(Long userId,
             Pageable pageable);
 
     @Query(value = """
-            SELECT e
-              FROM event e
-             WHERE (:users IS NULL OR e.initiator_id IN :users)
-               AND (:states IS NULL OR e.state IN :states)
-               AND (:categories IS NULL OR e.category_id IN :categories)
-               AND (:rangeStart IS NULL OR e.event_date >= :rangeStart)
-               AND (:rangeEnd IS NULL OR e.event_date <= :rangeEnd)
+            SELECT *
+              FROM events e
+             WHERE (CAST(:users AS TEXT) IS NULL OR e.initiator_id IN (:users))
+               AND (CAST(:states AS TEXT) IS NULL OR e.state IN (:states))
+               AND (CAST(:categories AS TEXT) IS NULL OR e.category_id IN (:categories))
+               AND (CAST(:rangeStart AS TEXT) IS NULL OR e.event_date >= :rangeStart)
+               AND (CAST(:rangeEnd AS TEXT) IS NULL OR e.event_date <= :rangeEnd)
     """, nativeQuery = true)
     List<Event> findEventsByAdmin(
             @Param("users") List<Long> users,

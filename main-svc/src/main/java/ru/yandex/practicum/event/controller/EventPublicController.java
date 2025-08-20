@@ -5,10 +5,11 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.event.dto.EventFullDto;
 import ru.yandex.practicum.event.dto.EventShortDto;
-import ru.yandex.practicum.event.model.EventService;
+import ru.yandex.practicum.event.service.EventServiceImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,15 +19,16 @@ import java.util.List;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventPublicController {
-    EventService eventService;
+    @Autowired
+    EventServiceImpl eventService;
 
     @GetMapping
     public Collection<EventShortDto> getEventList(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,
-            @RequestParam(required = false) String rangeEnd,
+            @RequestParam(required = false, defaultValue = "1000-01-01 00:00:00") String rangeStart,
+            @RequestParam(required = false, defaultValue = "3000-01-01 00:00:00") String rangeEnd,
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

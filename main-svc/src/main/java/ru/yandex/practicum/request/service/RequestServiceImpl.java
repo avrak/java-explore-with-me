@@ -30,7 +30,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
 
         Event event = eventRepository.findById(eventId).orElseThrow(
-                () -> new NotFoundException("Event with id=" + userId + " was not found"));
+                () -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
         Optional<Request> requestOpt = requestRepository.findByRequesterIdAndEventId(userId, eventId);
 
@@ -62,7 +62,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ForbiddenException("Пользователь id=" + userId
                     + " уже подавал заявку на событие id = " + eventId);
         }
-        if (event.getEventState() != EventState.PUBLISHED) {
+        if (event.getState() != EventState.PUBLISHED) {
             throw new ForbiddenException("Заявки на неопубликованное событие id=" + eventId + " запрещены");
         }
         if (event.getInitiator().getId().equals(userId)) {
@@ -85,6 +85,8 @@ public class RequestServiceImpl implements RequestService {
                 !event.getRequestModeration() || event.getParticipantLimit() == 0
                         ? RequestStatus.CONFIRMED : RequestStatus.PENDING
         );
+
+        requestRepository.save(request);
 
         log.info("RequestServiceImpl.addRequest: Сохранена заявка userId={}, eventId={}", userId, eventId);
 

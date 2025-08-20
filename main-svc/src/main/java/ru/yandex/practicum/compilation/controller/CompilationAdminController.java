@@ -3,21 +3,23 @@ package ru.yandex.practicum.compilation.controller;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.DeclareError;
-import org.hibernate.query.criteria.JpaConflictUpdateAction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.compilation.dto.CompilationDto;
 import ru.yandex.practicum.compilation.dto.NewCompilationDto;
 import ru.yandex.practicum.compilation.dto.UpdateCompilationDto;
-import ru.yandex.practicum.compilation.model.CompilationService;
+import ru.yandex.practicum.compilation.service.CompilationServiceImpl;
 
 @Slf4j
 @RestController
 @RequestMapping("/admin/compilations")
 @RequiredArgsConstructor
+@Validated
 public class CompilationAdminController {
-    private final CompilationService compilationService;
+    @Autowired
+    private final CompilationServiceImpl compilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

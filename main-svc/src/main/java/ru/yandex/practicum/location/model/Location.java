@@ -2,14 +2,13 @@ package ru.yandex.practicum.location.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "events")
+@Table(name = "locations")
 @Getter
 @Setter
 public class Location {
@@ -19,11 +18,9 @@ public class Location {
 
     @Column
     @NotNull
-    @PositiveOrZero
     private Float lat;
 
     @Column
     @NotNull
-    @PositiveOrZero
     private Float lon;
 }

@@ -3,8 +3,11 @@ package ru.yandex.practicum.event.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.StatClient;
+import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.repository.CategoryRepository;
@@ -18,7 +21,7 @@ import ru.yandex.practicum.exception.model.ParameterNotValidException;
 import ru.yandex.practicum.location.dto.LocationMapper;
 import ru.yandex.practicum.location.model.Location;
 import ru.yandex.practicum.location.repository.LocationRepository;
-import ru.yandex.practicum.model.StatisticsServer;
+import ru.yandex.practicum.request.model.RequestStatus;
 import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.repository.UserRepository;
 
@@ -30,19 +33,19 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class EventServiceImpl implements EventService {
     private final static String APP_NAME = "ewm-main-service";
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
-    private final StatisticsServer statisticsServer;
+    private final StatClient statClient;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public List<EventShortDto> getEventsByAdmin(
+    public List<EventFullDto> getEventsByAdmin(
             List<Long> users,
             List<EventState> eventStates,
             List<Long> categories,
@@ -51,23 +54,22 @@ public class EventServiceImpl implements EventService {
             Integer from,
             Integer size
     ) {
-        List<EventShortDto> shortDtoList = eventRepository.findEventsByAdmin(
+        List<EventFullDto> dtoList = eventRepository.findEventsByAdmin(
                 users,
                 eventStates,
                 categories,
                 LocalDateTime.parse(rangeStart, formatter),
                 LocalDateTime.parse(rangeEnd, formatter),
                 PageRequest.of(from / size, size)
-        )
-                .stream()
-                .map(EventMapper::toShortDto)
+        ).stream()
+                .map(EventMapper::toFullDto)
                 .toList();
 
         log.info("EventService.getEventsByAdmin: " +
                 "Прочитаны данные для users={}, eventStates={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
                 users, eventStates, categories, rangeStart, rangeEnd, from, size);
 
-        return shortDtoList;
+        return dtoList;
     }
 
     @Override
@@ -106,17 +108,17 @@ public class EventServiceImpl implements EventService {
 
         switch (updateDto.getStateAction()) {
             case StateActionAdmin.PUBLISH_EVENT:
-                if (event.getEventState() != EventState.PENDING) {
-                    throw new ForbiddenException("Запрещено публиковать событие в статусе " + event.getEventState());
+                if (event.getState() != EventState.PENDING) {
+                    throw new ForbiddenException("Запрещено публиковать событие в статусе " + event.getState());
                 }
-                event.setEventState(EventState.PUBLISHED);
+                event.setState(EventState.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
                 break;
             case StateActionAdmin.REJECT_EVENT:
-                if (event.getEventState() == EventState.PUBLISHED) {
-                    throw new ForbiddenException("Запрещено отклонять событие в статусе " + event.getEventState());
+                if (event.getState() == EventState.PUBLISHED) {
+                    throw new ForbiddenException("Запрещено отклонять событие в статусе " + event.getState());
                 }
-                event.setEventState(EventState.CANCELED);
+                event.setState(EventState.CANCELED);
         }
 
         event = eventRepository.save(event);
@@ -155,7 +157,7 @@ public class EventServiceImpl implements EventService {
 
         Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
 
-        if (event.getCreatedOn().isBefore(LocalDateTime.now().plusHours(2))) {
+        if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException("Новое событие можно добавить не позднее чем за два часа до начала");
         }
 
@@ -193,8 +195,8 @@ public class EventServiceImpl implements EventService {
                     + " не принадлежит userId=" + userId + ". Изменение запрещено");
         }
 
-        if (event.getEventState() == EventState.PUBLISHED) {
-            throw new ForbiddenException("Запрещено менять событие в статусе " + event.getEventState());
+        if (event.getState() == EventState.PUBLISHED) {
+            throw new ForbiddenException("Запрещено менять событие в статусе " + event.getState());
         }
 
         if (updateDto.getAnnotation() != null) {
@@ -239,9 +241,9 @@ public class EventServiceImpl implements EventService {
         }
 
         if (updateDto.getStateAction() == StateActionUser.SEND_TO_REVIEW) {
-            event.setEventState(EventState.PENDING);
+            event.setState(EventState.PENDING);
         } else if (updateDto.getStateAction() == StateActionUser.CANCEL_REVIEW) {
-            event.setEventState(EventState.CANCELED);
+            event.setState(EventState.CANCELED);
         }
 
         event = eventRepository.save(event);
@@ -266,10 +268,11 @@ public class EventServiceImpl implements EventService {
             String ip,
             String uri
     ) {
-        statisticsServer.saveHit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
-
+        statClient.hit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
+        Collection<EventShortDto> eventList = new ArrayList<>();
         EventSort eventSort = null;
-        if (!sort.isBlank()) {
+
+        if (sort != null) {
             try {
                 eventSort = EventSort.valueOf(sort);
             } catch (IllegalArgumentException e) {
@@ -277,22 +280,44 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        Collection<EventShortDto> eventList = eventRepository.findPublishedEvents(text, categories, paid,
-                        LocalDateTime.parse(rangeStart, formatter),
-                        LocalDateTime.parse(rangeEnd, formatter),
-                        onlyAvailable, PageRequest.of(from / size, size))
-                .stream()
-                .map(EventMapper::toShortDto)
-                .toList();
+        LocalDateTime start;
+        LocalDateTime end;
 
-        if (eventList.isEmpty()) {
+        try {
+            start = LocalDateTime.parse(rangeStart, formatter);
+            end = LocalDateTime.parse(rangeEnd, formatter);
+        } catch (Exception e) {
+            throw new ParameterNotValidException("Переданы даты в некорректном формате");
+        }
+
+        if (start.isAfter(end)) {
+            throw new ParameterNotValidException("Даты переданы некорректно: конец раньше начала");
+        }
+
+        Collection<Event> events = eventRepository.findPublishedEvents(text, categories, paid, start, end,
+                PageRequest.of(from / size, size));
+
+        if (events.isEmpty()) {
             return eventList;
         }
 
-        if (Objects.requireNonNull(eventSort) == EventSort.EVENT_DATE) {
-            eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getEventDate));
-        } else {
-            eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getPaid));
+        if (onlyAvailable) {
+            events = events
+                    .stream()
+                    .filter(e -> e.getRequests()
+                            .stream()
+                            .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
+                            .count() < e.getParticipantLimit())
+                    .toList();
+        }
+
+        eventList = events.stream().map(EventMapper::toShortDto).toList();
+
+        if (eventSort != null) {
+            switch (eventSort) {
+                case EVENT_DATE -> eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getEventDate));
+                case VIEWS -> eventList.stream().toList().sort(Comparator.comparing(EventShortDto::getViews));
+            }
         }
 
         log.info("EventService.getEventList: Прочитаны запросы пользователя для text={}, categories={}, paid={}, "
@@ -307,14 +332,15 @@ public class EventServiceImpl implements EventService {
             // Получим уникальное количество просмотров до текущего
             int viewsBefore = getViewsFromStats(uri);
 
+            statClient.hit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
+
             Event event = eventRepository.findById(eventId)
                     .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-            if (!event.getEventState().equals(EventState.PUBLISHED)) {
+            if (!event.getState().equals(EventState.PUBLISHED)) {
                 throw new NotFoundException("Event with id=" + eventId + " was not published");
             }
 
-            statisticsServer.saveHit(new StatisticsPostDto(APP_NAME, ip, uri, LocalDateTime.now()));
 
             if (viewsBefore < getViewsFromStats(uri)) {
                 event.setViews(event.getViews() + 1);
@@ -327,11 +353,18 @@ public class EventServiceImpl implements EventService {
         }
         
         private int getViewsFromStats(String uri) {
-            return statisticsServer.getStatistics(
-                            LocalDateTime.of(1900, Month.JANUARY, 1, 0, 0).format(formatter),
-                            LocalDateTime.now().format(formatter),
+            ResponseEntity<Object> response = statClient.getStat(
+                            LocalDateTime.of(1900, Month.JANUARY, 1, 0, 0),
+                            LocalDateTime.now(),
                             new ArrayList<>(Collections.singleton(uri)),
-                            true)
-                    .size();
+                            true);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.hasBody()) {
+                List<StatisticsGetDto> statList = (List<StatisticsGetDto>) response.getBody();
+                assert statList != null;
+                return statList.size();
+            }
+
+            return 0;
         }
     }

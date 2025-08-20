@@ -30,8 +30,8 @@ public class Event {
     @NotBlank
     private String annotation;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Column(name = "created_on")
@@ -43,12 +43,12 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    @ManyToOne
-    @JoinColumn(name = "initiator_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initiator_id")
     private User initiator;
 
-    @ManyToOne
-    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
     private Location location;
 
     @Column
@@ -66,7 +66,7 @@ public class Event {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private EventState eventState;
+    private EventState state;
 
     @Column
     @NotBlank
