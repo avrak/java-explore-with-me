@@ -9,6 +9,7 @@ import ru.yandex.practicum.event.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
@@ -50,4 +51,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
             Pageable pageable);
+
+    Optional<Event> findFirstByCategoryId(Long id);
 }

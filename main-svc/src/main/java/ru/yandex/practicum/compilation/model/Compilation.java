@@ -20,7 +20,7 @@ public class Compilation {
     private Long id;
 
     @ManyToMany
-    @JoinTable(name = "event_compilation", joinColumns = @JoinColumn(name = "compilation_id"),
+    @JoinTable(name = "compilation_events", joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> events;
@@ -30,8 +30,4 @@ public class Compilation {
 
     @Column(nullable = false)
     private String title;
-
-//    public Boolean isPinned() {
-//        return pinned;
-//    }
 }

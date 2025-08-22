@@ -1,5 +1,6 @@
 package ru.yandex.practicum.compilation.controller;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class CompilationAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto addCompilation(NewCompilationDto newDto) {
+    public CompilationDto addCompilation(@RequestBody @Valid NewCompilationDto newDto) {
         log.info("POST/admin/compilations: Добавить подборку {}", newDto);
 
         return compilationService.addCompilation(newDto);
@@ -40,7 +41,7 @@ public class CompilationAdminController {
     @PatchMapping("/{compId}")
     public CompilationDto updateCompilation(
             @PathVariable @Positive Long compId,
-            @RequestBody UpdateCompilationDto compDto
+            @RequestBody @Valid UpdateCompilationDto compDto
     ) {
         log.info("PATCH/admin/compilations/{}: Изменить подборку {}", compId, compDto.toString());
 

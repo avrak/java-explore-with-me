@@ -28,8 +28,21 @@ public class StatisticsServerImpl implements StatisticsServer {
 
     @Override
     public List<StatisticsGetDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
-        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
+        final DateTimeFormatter tFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+
+        if (start.contains("T")) {
+            startDateTime = LocalDateTime.parse(start, tFormatter);
+        } else {
+            startDateTime = LocalDateTime.parse(start, formatter);
+        }
+
+        if (end.contains("T")) {
+            endDateTime = LocalDateTime.parse(end, tFormatter);
+        } else {
+            endDateTime = LocalDateTime.parse(end, formatter);
+        }
 
         if (startDateTime.isEqual(endDateTime) || startDateTime.isAfter(endDateTime)) {
             throw new ConflictException("Начало должно быть раньше конца");

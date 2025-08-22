@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCompilationDto {
-    private List<Long> eventIdList;
-    private Boolean pinned;
+    private List<Long> events;
+    private Boolean pinned = false;
 
     @NotBlank(message = "Field: title. Error: must not be blank. Value: null")
     @Size(min = 1, max = 50, message = "Title must be between 1 and 50 characters")

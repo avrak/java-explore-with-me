@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.event.model.Event;
 import ru.yandex.practicum.event.model.EventState;
 import ru.yandex.practicum.event.repository.EventRepository;
+import ru.yandex.practicum.exception.model.ConflictException;
 import ru.yandex.practicum.exception.model.ForbiddenException;
 import ru.yandex.practicum.exception.model.NotFoundException;
 import ru.yandex.practicum.exception.model.ParameterNotValidException;
@@ -22,10 +23,7 @@ import ru.yandex.practicum.user.model.User;
 import ru.yandex.practicum.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,14 +57,14 @@ public class RequestServiceImpl implements RequestService {
         Optional<Request> requestOpt = requestRepository.findByRequesterIdAndEventId(userId, eventId);
 
         if(requestOpt.isPresent()) {
-            throw new ForbiddenException("Пользователь id=" + userId
+            throw new ConflictException("Пользователь id=" + userId
                     + " уже подавал заявку на событие id = " + eventId);
         }
         if (event.getState() != EventState.PUBLISHED) {
-            throw new ForbiddenException("Заявки на неопубликованное событие id=" + eventId + " запрещены");
+            throw new ConflictException("Заявки на неопубликованное событие id=" + eventId + " запрещены");
         }
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ForbiddenException("Автору события запрещено подавать на него заявку");
+            throw new ConflictException("Автору события запрещено подавать на него заявку");
         }
         if (event.getParticipantLimit() != 0
                 && event.getRequests()
@@ -74,7 +72,7 @@ public class RequestServiceImpl implements RequestService {
                     .filter(request ->
                             request.getStatus().equals(RequestStatus.CONFIRMED)).count()
                             >= event.getParticipantLimit()) {
-            throw new ForbiddenException("Лимит заявок по событию id=" + eventId + " исчерпан");
+            throw new ConflictException("Лимит заявок по событию id=" + eventId + " исчерпан");
         }
 
         Request request = new Request(
@@ -114,19 +112,19 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestDto> getRequestsByUserAndEvent(Long userId, Long eventId) {
-        userRepository.findUserById(userId).orElseThrow(
+        User user = userRepository.findUserById(userId).orElseThrow(
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
 
-        eventRepository.findById(eventId).orElseThrow(
+        Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-        Request request = requestRepository.findByRequesterIdAndEventId(userId, eventId).orElse(null);
-
-        List<RequestDto> requestDtoList = new ArrayList<>();
-
-        if (request != null) {
-            requestDtoList.add(RequestMapper.toDto(request));
+        if (!Objects.equals(user.getId(), event.getInitiator().getId())) {
+            throw new ForbiddenException("Чужое событие!");
         }
+
+        Collection<Request> requests = requestRepository.findByEventId(eventId);
+
+        List<RequestDto> requestDtoList = requests.stream().map(RequestMapper::toDto).toList();
 
         log.info("EventService.getUserRequestsForEvent: Прочитаны запросы пользователя {} на событие {}", userId, eventId);
 
@@ -169,7 +167,7 @@ public class RequestServiceImpl implements RequestService {
         switch (newStatus) {
             case RequestStatus.CONFIRMED:
                 if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-                    throw new ForbiddenException("Подтверждение заявок не требуется");
+                    throw new ConflictException("Подтверждение заявок не требуется");
                 }
 
                 long confirmedRequestsCount = event.getRequests()
@@ -177,12 +175,12 @@ public class RequestServiceImpl implements RequestService {
                         .count();
 
                 if (event.getParticipantLimit() <= confirmedRequestsCount) {
-                    throw new ForbiddenException("The participant limit has been reached");
+                    throw new ConflictException("The participant limit has been reached");
                 }
 
                 for (Request request : requestList) {
                     if (request.getStatus() != RequestStatus.PENDING) {
-                        throw new ForbiddenException("Request must have status PENDING");
+                        throw new ConflictException("Request must have status PENDING");
                     }
 
                     if (confirmedRequestsCount < event.getParticipantLimit()) {
@@ -204,7 +202,7 @@ public class RequestServiceImpl implements RequestService {
             case RequestStatus.REJECTED:
                 for (Request request : requestList) {
                     if (request.getStatus() != RequestStatus.PENDING) {
-                        throw new ForbiddenException("Request must have status PENDING");
+                        throw new ConflictException("Request must have status PENDING");
                     }
 
                     request.setStatus(newStatus);

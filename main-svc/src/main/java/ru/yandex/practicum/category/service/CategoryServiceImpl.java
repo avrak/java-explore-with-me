@@ -10,6 +10,7 @@ import ru.yandex.practicum.category.dto.NewCategoryDto;
 import ru.yandex.practicum.category.model.Category;
 import ru.yandex.practicum.category.model.CategoryService;
 import ru.yandex.practicum.category.repository.CategoryRepository;
+import ru.yandex.practicum.event.repository.EventRepository;
 import ru.yandex.practicum.exception.model.ConflictException;
 import ru.yandex.practicum.exception.model.NotFoundException;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public CategoryDto add(NewCategoryDto postDto) {
@@ -50,6 +52,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         Category category = getByIdOrException(id);
+
+        if (eventRepository.findFirstByCategoryId(id).isPresent()) {
+            throw new ConflictException("Категория с id=" + id + " используется в событиях");
+        }
+
         categoryRepository.delete(category);
         log.info("Категория с id={} удалена", id);
     }

@@ -2,6 +2,7 @@ package ru.yandex.practicum.compilation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.compilation.dto.CompilationDto;
@@ -26,13 +27,15 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
 
     @Override
-    public List<CompilationDto> getCompilations(Boolean pinned, Long from, Long size) {
-        List<CompilationDto> compilationDtoList = compilationRepository.findByPinnedAndIdBetween(
-                        pinned != null && pinned, from, from + size
-        ).stream()
-                .map(CompilationMapper::toDto)
-                .toList();
+    public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
+         List<Compilation> compilations = compilationRepository.findAll(PageRequest.of(from / size, size))
+                .getContent();
 
+        if (pinned != null) {
+            compilations = compilations.stream().filter(c -> c.getPinned() == pinned).toList();
+        }
+
+        List<CompilationDto> compilationDtoList = compilations.stream().map(CompilationMapper::toDto).toList();
         log.info("CompilationServiceImpl.getCompilations: Прочитаны подборки pinned={}, from={}, size={}"
                 ,pinned, from, size);
 
@@ -53,8 +56,8 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto addCompilation(NewCompilationDto newDto) {
         Compilation compilation = CompilationMapper.toCompilation(newDto);
 
-        if (newDto.getEventIdList() != null) {
-            compilation.setEvents(eventRepository.findAllById(newDto.getEventIdList()));
+        if (newDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(newDto.getEvents()));
         }
 
         if (newDto.getPinned() == null) {
@@ -82,8 +85,8 @@ public class CompilationServiceImpl implements CompilationService {
         if (compDto.getPinned() != null) compilation.setPinned(compDto.getPinned());
         if (compilation.getTitle() != null) compilation.setTitle(compilation.getTitle());
 
-        if (compDto.getEventIdList() != null) {
-            compilation.setEvents(eventRepository.findAllById(compDto.getEventIdList()));
+        if (compDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllById(compDto.getEvents()));
         }
 
         compilation = compilationRepository.save(compilation);

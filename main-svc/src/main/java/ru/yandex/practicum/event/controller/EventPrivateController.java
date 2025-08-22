@@ -75,7 +75,7 @@ public class EventPrivateController {
             @PathVariable @Positive Long userId,
             @PathVariable @Positive Long eventId
     ) {
-        log.info("GET/users/{}/events/{}/requests: Получить запросы пользователя для события", userId, eventId);
+        log.info("GET/users/{}/events/{}/requests: Получить запросы события пользователя", userId, eventId);
         return requestService.getRequestsByUserAndEvent(userId, eventId);
     }
 

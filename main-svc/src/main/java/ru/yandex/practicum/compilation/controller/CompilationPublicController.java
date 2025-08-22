@@ -23,8 +23,8 @@ public class CompilationPublicController {
     @GetMapping
     public Collection<CompilationDto> getCompilations(
             @RequestParam(required = false) Boolean pinned,
-            @RequestParam(defaultValue = "0") Long from,
-            @RequestParam(defaultValue = "10") Long size
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size
     ) {
         log.info("GET/compilations: Получить подборки pinned={}, from={}, size={}", pinned, from, size);
 

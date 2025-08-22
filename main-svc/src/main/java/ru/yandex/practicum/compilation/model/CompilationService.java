@@ -5,10 +5,9 @@ import ru.yandex.practicum.compilation.dto.NewCompilationDto;
 import ru.yandex.practicum.compilation.dto.UpdateCompilationDto;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface CompilationService {
-    Collection<CompilationDto> getCompilations(Boolean pinned, Long from, Long size);
+    Collection<CompilationDto> getCompilations(Boolean pinned, int from, int size);
 
     CompilationDto getCompilationById(Long id);
 

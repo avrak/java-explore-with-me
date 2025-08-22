@@ -24,7 +24,7 @@ public class CategoryAdminController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto save(
-            @RequestBody NewCategoryDto postDto
+            @RequestBody @Valid NewCategoryDto postDto
     ) {
         log.info("POST/admin/categories: Сохранить категорию {} ", postDto.toString());
         return categoryService.add(postDto);

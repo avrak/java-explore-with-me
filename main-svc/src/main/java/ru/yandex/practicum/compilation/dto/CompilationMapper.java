@@ -3,12 +3,15 @@ package ru.yandex.practicum.compilation.dto;
 import ru.yandex.practicum.compilation.model.Compilation;
 import ru.yandex.practicum.event.dto.EventMapper;
 
+import java.util.ArrayList;
+
 public class CompilationMapper {
     public static CompilationDto toDto(Compilation compilation) {
         return new CompilationDto(
                 compilation.getId(),
                 compilation.getTitle(),
-                compilation.getEvents().stream().map(EventMapper::toShortDto).toList(),
+                compilation.getEvents() == null ? new ArrayList<>()
+                        : compilation.getEvents().stream().map(EventMapper::toShortDto).toList(),
                 compilation.getPinned()
         );
     }

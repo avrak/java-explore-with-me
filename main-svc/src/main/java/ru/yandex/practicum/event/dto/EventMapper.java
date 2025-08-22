@@ -28,7 +28,7 @@ public class EventMapper {
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
                 countRequests(event.getRequests()),
-                event.getEventDate(),
+                event.getEventDate().format(formatter),
                 event.getId(),
                 UserMapper.toUserShortDto(event.getInitiator()),
                 event.getPaid(),
