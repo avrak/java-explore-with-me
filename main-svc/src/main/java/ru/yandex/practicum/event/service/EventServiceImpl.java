@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class EventServiceImpl implements EventService {
-    private final String APPNAME = "ewm-main-service";
+    private final String appName = "ewm-main-service";
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
@@ -283,7 +283,7 @@ public class EventServiceImpl implements EventService {
             String ip,
             String uri
     ) {
-        statClient.hit(new StatisticsPostDto(APPNAME, ip, uri, LocalDateTime.now()));
+        statClient.hit(new StatisticsPostDto(appName, ip, uri, LocalDateTime.now()));
         EventSort eventSort = null;
 
         if (sort != null) {
@@ -358,7 +358,7 @@ public class EventServiceImpl implements EventService {
         // Получим уникальное количество просмотров до текущего
         int viewsBefore = getViewsFromStats(uri);
 
-        statClient.hit(new StatisticsPostDto(APPNAME, uri, ip, LocalDateTime.now()));
+        statClient.hit(new StatisticsPostDto(appName, uri, ip, LocalDateTime.now()));
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
