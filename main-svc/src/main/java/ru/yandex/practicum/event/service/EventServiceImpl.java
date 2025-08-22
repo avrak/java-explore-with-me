@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class EventServiceImpl implements EventService {
-    private final static String APP_NAME = "ewm-main-service";
+    private final String APP_NAME = "ewm-main-service";
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
@@ -195,7 +195,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto){
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateDto) {
         userRepository.findUserById(userId).orElseThrow(
                 () -> new NotFoundException("User with id=" + userId + " was not found"));
         Event event = eventRepository.findById(eventId)

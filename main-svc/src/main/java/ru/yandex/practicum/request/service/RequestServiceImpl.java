@@ -56,7 +56,7 @@ public class RequestServiceImpl implements RequestService {
 
         Optional<Request> requestOpt = requestRepository.findByRequesterIdAndEventId(userId, eventId);
 
-        if(requestOpt.isPresent()) {
+        if (requestOpt.isPresent()) {
             throw new ConflictException("Пользователь id=" + userId
                     + " уже подавал заявку на событие id = " + eventId);
         }

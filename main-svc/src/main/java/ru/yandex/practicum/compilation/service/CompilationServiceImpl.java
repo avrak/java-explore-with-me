@@ -36,8 +36,8 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         List<CompilationDto> compilationDtoList = compilations.stream().map(CompilationMapper::toDto).toList();
-        log.info("CompilationServiceImpl.getCompilations: Прочитаны подборки pinned={}, from={}, size={}"
-                ,pinned, from, size);
+        log.info("CompilationServiceImpl.getCompilations: Прочитаны подборки pinned={}, from={}, size={}",
+                pinned, from, size);
 
         return compilationDtoList.isEmpty() ? Collections.emptyList() : compilationDtoList;
     }
@@ -45,7 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(Long id) {
         Compilation compilation = compilationRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Compilation with id=" + id +" was not found"));
+                () -> new NotFoundException("Compilation with id=" + id + " was not found"));
 
         log.info("CompilationServiceImpl.getCompilationById: Прочитана подборка id={}", id);
 
@@ -80,7 +80,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto compDto) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Category with id=" + compId +" was not found"));
+                .orElseThrow(() -> new NotFoundException("Category with id=" + compId + " was not found"));
 
         if (compDto.getPinned() != null) compilation.setPinned(compDto.getPinned());
         if (compilation.getTitle() != null) compilation.setTitle(compilation.getTitle());
