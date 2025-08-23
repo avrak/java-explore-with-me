@@ -3,6 +3,7 @@ package ru.yandex.practicum.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
@@ -26,8 +27,8 @@ public class StatisticsController {
 
     @GetMapping("/stats")
     public List<StatisticsGetDto> getStatistic(
-            @RequestParam String start,
-            @RequestParam String end,
+            @RequestParam @Validated String start,
+            @RequestParam @Validated String end,
             @RequestParam(defaultValue = "") List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique
     ) {

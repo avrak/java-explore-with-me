@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
-import ru.yandex.practicum.exception.ConflictException;
+import ru.yandex.practicum.exception.ParameterNotValidException;
 import ru.yandex.practicum.model.StatisticsMapper;
 import ru.yandex.practicum.model.StatisticsServer;
 import ru.yandex.practicum.repository.StatisticsRepository;
@@ -45,7 +45,7 @@ public class StatisticsServerImpl implements StatisticsServer {
         }
 
         if (startDateTime.isEqual(endDateTime) || startDateTime.isAfter(endDateTime)) {
-            throw new ConflictException("Начало должно быть раньше конца");
+            throw new ParameterNotValidException("Начало должно быть раньше конца");
         }
 
         startDateTime = startDateTime.minusSeconds(3);
