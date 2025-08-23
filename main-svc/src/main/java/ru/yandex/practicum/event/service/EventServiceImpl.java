@@ -386,12 +386,14 @@ public class EventServiceImpl implements EventService {
                         new ArrayList<>(Collections.singleton(uri)),
                         true);
 
+        log.info("EventServiceImpl.getViewsFromStats: Получен ответ от клиента статистики: {}", response);
+
         if (response.getStatusCode().is2xxSuccessful() && response.hasBody()) {
             List<StatisticsGetDto> statList = (List<StatisticsGetDto>) response.getBody();
             assert statList != null;
             return statList.size();
         } else {
-            log.info("Ошибка при получении ответа от клиента статистики: {}", response);
+            log.info("EventServiceImpl.getViewsFromStats: Ошибка при получении ответа от клиента статистики: {}", response);
         }
 
         return 0;
