@@ -390,6 +390,8 @@ public class EventServiceImpl implements EventService {
             List<StatisticsGetDto> statList = (List<StatisticsGetDto>) response.getBody();
             assert statList != null;
             return statList.size();
+        } else {
+            log.info("Ошибка при получении ответа от клиента статистики: {}", response);
         }
 
         return 0;
