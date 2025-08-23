@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
-import ru.yandex.practicum.exception.ConflictException;
+import ru.yandex.practicum.exception.ParameterNotValidException;
 import ru.yandex.practicum.model.Statistics;
 import ru.yandex.practicum.repository.StatisticsRepository;
 
@@ -102,13 +102,13 @@ class StatisticsServerImplTest {
 
     @Test
     void getStatistics_withEqualStartEnd_shouldThrowConflictException() {
-        assertThrows(ConflictException.class, () ->
+        assertThrows(ParameterNotValidException.class, () ->
                 statisticsService.getStatistics(start, start, List.of(), false));
     }
 
     @Test
     void getStatistics_withStartAfterEnd_shouldThrowConflictException() {
-        assertThrows(ConflictException.class, () ->
+        assertThrows(ParameterNotValidException.class, () ->
                 statisticsService.getStatistics(end, start, List.of(), false));
     }
 }
