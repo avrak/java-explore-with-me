@@ -1,6 +1,7 @@
 package ru.yandex.practicum.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,6 +45,15 @@ public class ErrorHandler {
     public ru.yandex.practicum.exception.ErrorResponse handleInternalServerException(final Throwable e) {
         return new ErrorResponse(
                 "Внутренняя ошибка", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return new ErrorResponse(
+                "Ошибка запроса",
+                "Некорректно передан обязательный параметр: " + ex.getParameter()
         );
     }
 
