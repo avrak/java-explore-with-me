@@ -386,7 +386,8 @@ public class EventServiceImpl implements EventService {
                         new ArrayList<>(Collections.singleton(uri)),
                         true);
 
-        log.info("EventServiceImpl.getViewsFromStats: Получен ответ от клиента статистики: {}", response);
+        log.info("EventServiceImpl.getViewsFromStats: Получен ответ от клиента статистики: {}, body={}",
+                response, response.getBody());
 
         if (response.getStatusCode().is2xxSuccessful() && response.hasBody()) {
             List<StatisticsGetDto> statList = (List<StatisticsGetDto>) response.getBody();
