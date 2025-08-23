@@ -21,8 +21,10 @@ public class StatClient extends BaseClient {
         super(restTemplate);
     }
 
-    public ResponseEntity<Object> hit(StatisticsPostDto postDto) {
-        return post("/hit", postDto);
+    public void hit(StatisticsPostDto postDto) {
+        log.info("StatClient.hit: Сохранить хит={}", postDto);
+        post("/hit", postDto);
+        log.info("StatClient.hit: Хит сохранён");
     }
 
     public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
