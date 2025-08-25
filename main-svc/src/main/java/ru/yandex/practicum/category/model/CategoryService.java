@@ -12,7 +12,7 @@ public interface CategoryService {
 
     void delete(Long id);
 
-    Collection<CategoryDto> getAll(Long from, Long size);
+    Collection<CategoryDto> getAll(int from, int size);
 
     CategoryDto getById(Long id);
 }

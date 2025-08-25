@@ -16,7 +16,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     Collection<Request> findByEventId(Long eventId);
 
-    @Modifying(flushAutomatically = true)
+    @Modifying(clearAutomatically = true)
     @Query(value = """
             update requests
                set status = 'REJECTED'

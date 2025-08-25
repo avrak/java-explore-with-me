@@ -2,6 +2,7 @@ package ru.yandex.practicum.category.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.category.dto.CategoryDto;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.exception.model.ConflictException;
 import ru.yandex.practicum.exception.model.NotFoundException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,10 +64,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getAll(Long from, Long size) {
-        List<Category> list = categoryRepository.findCategoryByIdBetween(from, from + size);
+    public List<CategoryDto> getAll(int from, int size) {
+        List<Category> list = categoryRepository.findAll(PageRequest.of(from / size, size)).getContent();
         log.info("Список категорий с from={}, size={} прочитан", from, size);
-        return list.stream().map(CategoryMapper::toCategoryDto).toList();
+        return list.stream().map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
     }
 
     @Override
