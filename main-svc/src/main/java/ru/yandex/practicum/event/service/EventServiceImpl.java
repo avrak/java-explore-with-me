@@ -356,6 +356,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto getFullEventById(Long eventId, String ip, String uri) {
         // Получим уникальное количество просмотров до текущего
         int viewsBefore = getViewsFromStats(uri);
