@@ -359,7 +359,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto getFullEventById(Long eventId, String ip, String uri) {
         // Получим уникальное количество просмотров до текущего
-        int viewsBefore = getViewsFromStats(uri);
+//        int viewsBefore = getViewsFromStats(uri);
 
         statClient.hit(new StatisticsPostDto(appName, uri, ip, LocalDateTime.now()));
 
@@ -370,10 +370,12 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not published");
         }
 
-        if (viewsBefore < 1) {
-            event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
-            eventRepository.save(event);
-        }
+//        if (viewsBefore < 1) {
+//            event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
+//            eventRepository.save(event);
+//        }
+        event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
+        eventRepository.save(event);
 
         EventFullDto fullDto = EventMapper.toFullDto(event);
         log.info("EventService.getFullEventById: Прочитано событие eventId={}", eventId);
