@@ -285,7 +285,7 @@ public class EventServiceImpl implements EventService {
             String ip,
             String uri
     ) {
-        statClient.hit(new StatisticsPostDto(appName, ip, uri, LocalDateTime.now()));
+        statClient.hit(new StatisticsPostDto(appName, uri, ip, LocalDateTime.now()));
         EventSort eventSort = null;
 
         if (sort != null) {
