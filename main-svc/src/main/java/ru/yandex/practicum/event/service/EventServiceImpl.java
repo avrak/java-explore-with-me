@@ -369,14 +369,9 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not published");
         }
 
-
-//        if (viewsBefore < getViewsFromStats(uri)) {
-//            event.setViews(event.getViews() + 1);
-//            eventRepository.save(event);
-//        }
-
         if (viewsBefore < 1) {
             event.setViews(event.getViews() + 1);
+            eventRepository.save(event);
         }
 
         EventFullDto fullDto = EventMapper.toFullDto(event);
