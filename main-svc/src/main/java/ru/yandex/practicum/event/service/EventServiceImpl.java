@@ -374,10 +374,10 @@ public class EventServiceImpl implements EventService {
 //            event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
 //            eventRepository.save(event);
 //        }
-        event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
-        eventRepository.save(event);
 
         EventFullDto fullDto = EventMapper.toFullDto(event);
+        event.setViews(event.getViews() == null ? 0 : event.getViews() + 1);
+        eventRepository.save(event);
         log.info("EventService.getFullEventById: Прочитано событие eventId={}", eventId);
         return fullDto;
     }
