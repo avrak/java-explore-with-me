@@ -375,7 +375,7 @@ public class EventServiceImpl implements EventService {
 //            eventRepository.save(event);
 //        }
 
-        if (viewsBefore <= 1) {
+        if (viewsBefore < 1) {
             event.setViews(event.getViews() + 1);
         }
 
