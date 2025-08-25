@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
 import ru.yandex.practicum.exception.ParameterNotValidException;
@@ -22,6 +23,7 @@ public class StatisticsServerImpl implements StatisticsServer {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    @Transactional
     public void saveHit(StatisticsPostDto postDto) {
         statisticsRepository.save(StatisticsMapper.toStatistics(postDto));
     }
