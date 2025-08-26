@@ -6,8 +6,7 @@ import ru.yandex.practicum.event.model.Event;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Builder
 @Entity
 @Table(name = "compilations")

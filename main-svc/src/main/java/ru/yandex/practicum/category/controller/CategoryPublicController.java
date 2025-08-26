@@ -4,11 +4,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.category.dto.CategoryDto;
-import ru.yandex.practicum.category.service.CategoryServiceImpl;
+import ru.yandex.practicum.category.model.CategoryService;
 
 import java.util.Collection;
 
@@ -18,8 +17,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Validated
 public class CategoryPublicController {
-    @Autowired
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public Collection<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero int from,

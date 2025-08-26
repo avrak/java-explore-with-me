@@ -3,12 +3,11 @@ package ru.yandex.practicum.request.controller;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.request.dto.RequestDto;
-import ru.yandex.practicum.request.service.RequestServiceImpl;
+import ru.yandex.practicum.request.model.RequestService;
 
 import java.util.Collection;
 
@@ -18,8 +17,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Validated
 public class RequestPrivateController {
-    @Autowired
-    private final RequestServiceImpl requestService;
+    private final RequestService requestService;
 
     @GetMapping
     public Collection<RequestDto> getRequestByUserId(@PathVariable @Positive Long userId) {

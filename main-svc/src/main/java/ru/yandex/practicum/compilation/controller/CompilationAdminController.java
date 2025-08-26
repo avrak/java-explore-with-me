@@ -4,14 +4,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.compilation.dto.CompilationDto;
 import ru.yandex.practicum.compilation.dto.NewCompilationDto;
 import ru.yandex.practicum.compilation.dto.UpdateCompilationDto;
-import ru.yandex.practicum.compilation.service.CompilationServiceImpl;
+import ru.yandex.practicum.compilation.model.CompilationService;
 
 @Slf4j
 @RestController
@@ -19,8 +18,7 @@ import ru.yandex.practicum.compilation.service.CompilationServiceImpl;
 @RequiredArgsConstructor
 @Validated
 public class CompilationAdminController {
-    @Autowired
-    private final CompilationServiceImpl compilationService;
+    private final CompilationService compilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

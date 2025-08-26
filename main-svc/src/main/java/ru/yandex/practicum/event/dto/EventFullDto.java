@@ -1,11 +1,14 @@
 package ru.yandex.practicum.event.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.yandex.practicum.category.dto.CategoryDto;
 import ru.yandex.practicum.location.dto.LocationDto;
 import ru.yandex.practicum.user.dto.UserShortDto;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +17,9 @@ public class EventFullDto {
     private String annotation;
     private CategoryDto category;
     private Long confirmedRequests;
-    private String createdOn;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdOn;
+//    private String createdOn;
     private String description;
     private String eventDate;
     private Long id;

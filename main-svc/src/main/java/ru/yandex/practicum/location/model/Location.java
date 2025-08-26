@@ -9,8 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "locations")
-@Getter
-@Setter
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,13 +8,11 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "categories")
-@Getter
-@Setter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column
     private String name;
 }

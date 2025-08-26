@@ -5,11 +5,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.event.dto.EventFullDto;
 import ru.yandex.practicum.event.dto.EventShortDto;
-import ru.yandex.practicum.event.service.EventServiceImpl;
+import ru.yandex.practicum.event.model.EventService;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,8 +18,7 @@ import java.util.List;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventPublicController {
-    @Autowired
-    EventServiceImpl eventService;
+    private final EventService eventService;
 
     @GetMapping
     public Collection<EventShortDto> getEventList(

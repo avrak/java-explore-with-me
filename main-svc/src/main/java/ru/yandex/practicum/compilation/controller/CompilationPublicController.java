@@ -3,11 +3,10 @@ package ru.yandex.practicum.compilation.controller;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.compilation.dto.CompilationDto;
-import ru.yandex.practicum.compilation.service.CompilationServiceImpl;
+import ru.yandex.practicum.compilation.model.CompilationService;
 
 import java.util.Collection;
 
@@ -17,8 +16,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Validated
 public class CompilationPublicController {
-    @Autowired
-    private final CompilationServiceImpl compilationService;
+    private final CompilationService compilationService;
 
     @GetMapping
     public Collection<CompilationDto> getCompilations(

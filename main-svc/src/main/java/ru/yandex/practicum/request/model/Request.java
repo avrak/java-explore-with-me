@@ -13,8 +13,6 @@ import ru.yandex.practicum.user.model.User;
 @NoArgsConstructor
 @Entity
 @Table(name = "requests")
-@Getter
-@Setter
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

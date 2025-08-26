@@ -5,13 +5,12 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.event.dto.EventFullDto;
 import ru.yandex.practicum.event.dto.UpdateEventAdminRequestDto;
+import ru.yandex.practicum.event.model.EventService;
 import ru.yandex.practicum.event.model.EventState;
-import ru.yandex.practicum.event.service.EventServiceImpl;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,8 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class EventAdminController {
-    @Autowired
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @GetMapping
     public Collection<EventFullDto> getEventList(
