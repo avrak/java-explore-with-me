@@ -3,9 +3,10 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.StatisticsGetDto;
 import ru.yandex.practicum.StatisticsPostDto;
-import ru.yandex.practicum.exception.ConflictException;
+import ru.yandex.practicum.exception.ParameterNotValidException;
 import ru.yandex.practicum.model.StatisticsMapper;
 import ru.yandex.practicum.model.StatisticsServer;
 import ru.yandex.practicum.repository.StatisticsRepository;
@@ -22,22 +23,36 @@ public class StatisticsServerImpl implements StatisticsServer {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    @Transactional
     public void saveHit(StatisticsPostDto postDto) {
         statisticsRepository.save(StatisticsMapper.toStatistics(postDto));
     }
 
     @Override
     public List<StatisticsGetDto> getStatistics(String start, String end, List<String> uris, Boolean unique) {
-        LocalDateTime startDateTime = LocalDateTime.parse(start, formatter);
-        LocalDateTime endDateTime = LocalDateTime.parse(end, formatter);
+        final DateTimeFormatter tFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime startDateTime;
+        LocalDateTime endDateTime;
+
+        if (start.contains("T")) {
+            startDateTime = LocalDateTime.parse(start, tFormatter);
+        } else {
+            startDateTime = LocalDateTime.parse(start, formatter);
+        }
+
+        if (end.contains("T")) {
+            endDateTime = LocalDateTime.parse(end, tFormatter);
+        } else {
+            endDateTime = LocalDateTime.parse(end, formatter);
+        }
 
         if (startDateTime.isEqual(endDateTime) || startDateTime.isAfter(endDateTime)) {
-            throw new ConflictException("Начало должно быть раньше конца");
+            throw new ParameterNotValidException("Начало должно быть раньше конца");
         }
 
         startDateTime = startDateTime.minusSeconds(3);
 
-        if (uris.isEmpty()) {
+        if (uris == null || uris.isEmpty()) {
             return statisticsRepository.findStatisticsByPeriod(startDateTime, endDateTime, unique);
         } else {
             return statisticsRepository.findStatisticsByPeriodAndUris(startDateTime, endDateTime, uris, unique);

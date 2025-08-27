@@ -16,7 +16,7 @@ services:
 
   stats-db:
     image: postgres:16.1
-    container_name: stats_db
+    container_name: stats-db
     ports:
       - "4432:5432"
     environment:
@@ -47,13 +47,13 @@ services:
 
   ewm-db:
     image: postgres:16.1
-    container_name: ewm_db
+    container_name: ewm-db
     ports:
       - "3432:5432"
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
-      - POSTGRES_DB=ewm
+      - POSTGRES_DB=exploreit
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
