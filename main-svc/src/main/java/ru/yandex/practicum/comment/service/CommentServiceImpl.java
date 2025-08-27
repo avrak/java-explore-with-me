@@ -110,7 +110,7 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> getEventComments(Long eventId, int from, int size) {
         Event event = getEventOrException(eventId);
 
-        List<CommentDto> commentDtoList= commentRepository
+        List<CommentDto> commentDtoList = commentRepository
                 .findByEvent(event, PageRequest.of(from / size, size))
                 .stream()
                 .map(CommentMapper::toCommentDto)
